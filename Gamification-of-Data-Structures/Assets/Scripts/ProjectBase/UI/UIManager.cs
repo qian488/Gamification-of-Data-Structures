@@ -25,7 +25,7 @@ public class UIManager : BaseManager<UIManager>
 
     public UIManager()
     {
-        GameObject go = ResourcesManager.GetInstance().Load<GameObject>("UI/Canvas");
+        GameObject go = Sokoban.UIRoot.CreateUIRoot();
         canvas = go.transform as RectTransform;
         GameObject.DontDestroyOnLoad(go);
 
@@ -34,8 +34,11 @@ public class UIManager : BaseManager<UIManager>
         top = canvas.Find("Top");
         system = canvas.Find("System");
 
-        go = ResourcesManager.GetInstance().Load<GameObject>("UI/EventSystem");
-        GameObject.DontDestroyOnLoad(go);
+        // 创建EventSystem
+        GameObject eventSystem = new GameObject("EventSystem");
+        eventSystem.AddComponent<UnityEngine.EventSystems.EventSystem>();
+        eventSystem.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+        GameObject.DontDestroyOnLoad(eventSystem);
     }
 
     public Transform GetUILayerFather(E_UI_Layer layer)
@@ -73,32 +76,62 @@ public class UIManager : BaseManager<UIManager>
             return;
         }
 
-        ResourcesManager.GetInstance().LoadAsync<GameObject>("UI/" + panelName, (go) =>
+        GameObject panelGo = null;
+        switch (panelName)
         {
-            Transform father = bot;
-            switch(layer)
-            {
-                case E_UI_Layer.Mid:
-                    father = mid;
-                    break;
-                case E_UI_Layer.Top:
-                    father = top;
-                    break;
-                case E_UI_Layer.Syestem:
-                    father = system;
-                    break;
-            }
-            go.transform.SetParent(father);
-            go.transform.localPosition = Vector3.zero;
-            go.transform.localScale = Vector3.one;
-            (go.transform as RectTransform).offsetMax = Vector2.one;
-            (go.transform as RectTransform).offsetMin = Vector2.one;
+            case "MainMenuPanel":
+                panelGo = Sokoban.UIFactory.CreateMainMenuPanel();
+                break;
+            case "GamePanel":
+                panelGo = Sokoban.UIFactory.CreateGamePanel();
+                break;
+            case "PausePanel":
+                panelGo = Sokoban.UIFactory.CreatePausePanel();
+                break;
+            case "WinPanel":
+                panelGo = Sokoban.UIFactory.CreateWinPanel();
+                break;
+            case "LevelSelectPanel":
+                panelGo = Sokoban.UIFactory.CreateLevelSelectPanel();
+                break;
+            default:
+                Debug.LogError($"Unknown panel name: {panelName}");
+                return;
+        }
 
-            T panel = go.GetComponent<T>();
-            if(callback != null) callback(panel);
-            panel.ShowMe();
-            panelDictionary.Add(panelName, panel);
-        });
+        if (panelGo == null)
+        {
+            Debug.LogError($"Failed to create panel: {panelName}");
+            return;
+        }
+
+        Transform father = bot;
+        switch(layer)
+        {
+            case E_UI_Layer.Mid:
+                father = mid;
+                break;
+            case E_UI_Layer.Top:
+                father = top;
+                break;
+            case E_UI_Layer.Syestem:
+                father = system;
+                break;
+        }
+
+        panelGo.transform.SetParent(father);
+        panelGo.transform.localPosition = Vector3.zero;
+        panelGo.transform.localScale = Vector3.one;
+        RectTransform rectTransform = panelGo.GetComponent<RectTransform>();
+        rectTransform.anchorMin = Vector2.zero;
+        rectTransform.anchorMax = Vector2.one;
+        rectTransform.offsetMin = Vector2.zero;
+        rectTransform.offsetMax = Vector2.zero;
+
+        T panel = panelGo.GetComponent<T>();
+        if(callback != null) callback(panel);
+        panel.ShowMe();
+        panelDictionary.Add(panelName, panel);
     }
 
     public void HidePanel(string panelName)
