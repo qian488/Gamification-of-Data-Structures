@@ -25,7 +25,7 @@ public class UIManager : BaseManager<UIManager>
 
     public UIManager()
     {
-        GameObject go = Sokoban.UIRoot.CreateUIRoot();
+        GameObject go = ResourcesManager.GetInstance().Load<GameObject>("UI/Canvas");
         canvas = go.transform as RectTransform;
         GameObject.DontDestroyOnLoad(go);
 
@@ -34,11 +34,8 @@ public class UIManager : BaseManager<UIManager>
         top = canvas.Find("Top");
         system = canvas.Find("System");
 
-        // 创建EventSystem
-        GameObject eventSystem = new GameObject("EventSystem");
-        eventSystem.AddComponent<UnityEngine.EventSystems.EventSystem>();
-        eventSystem.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
-        GameObject.DontDestroyOnLoad(eventSystem);
+        go = ResourcesManager.GetInstance().Load<GameObject>("UI/EventSystem");
+        GameObject.DontDestroyOnLoad(go);
     }
 
     public Transform GetUILayerFather(E_UI_Layer layer)
@@ -76,62 +73,33 @@ public class UIManager : BaseManager<UIManager>
             return;
         }
 
-        GameObject panelGo = null;
-        switch (panelName)
+        string path = "UI/Panels/" + panelName;
+        ResourcesManager.GetInstance().LoadAsync<GameObject>(path, (go) =>
         {
-            case "MainMenuPanel":
-                panelGo = Sokoban.UIFactory.CreateMainMenuPanel();
-                break;
-            case "GamePanel":
-                panelGo = Sokoban.UIFactory.CreateGamePanel();
-                break;
-            case "PausePanel":
-                panelGo = Sokoban.UIFactory.CreatePausePanel();
-                break;
-            case "WinPanel":
-                panelGo = Sokoban.UIFactory.CreateWinPanel();
-                break;
-            case "LevelSelectPanel":
-                panelGo = Sokoban.UIFactory.CreateLevelSelectPanel();
-                break;
-            default:
-                Debug.LogError($"Unknown panel name: {panelName}");
-                return;
-        }
+            Transform father = bot;
+            switch(layer)
+            {
+                case E_UI_Layer.Mid:
+                    father = mid;
+                    break;
+                case E_UI_Layer.Top:
+                    father = top;
+                    break;
+                case E_UI_Layer.Syestem:
+                    father = system;
+                    break;
+            }
+            go.transform.SetParent(father);
+            go.transform.localPosition = Vector3.zero;
+            go.transform.localScale = Vector3.one;
+            (go.transform as RectTransform).offsetMax = Vector2.one;
+            (go.transform as RectTransform).offsetMin = Vector2.one;
 
-        if (panelGo == null)
-        {
-            Debug.LogError($"Failed to create panel: {panelName}");
-            return;
-        }
-
-        Transform father = bot;
-        switch(layer)
-        {
-            case E_UI_Layer.Mid:
-                father = mid;
-                break;
-            case E_UI_Layer.Top:
-                father = top;
-                break;
-            case E_UI_Layer.Syestem:
-                father = system;
-                break;
-        }
-
-        panelGo.transform.SetParent(father);
-        panelGo.transform.localPosition = Vector3.zero;
-        panelGo.transform.localScale = Vector3.one;
-        RectTransform rectTransform = panelGo.GetComponent<RectTransform>();
-        rectTransform.anchorMin = Vector2.zero;
-        rectTransform.anchorMax = Vector2.one;
-        rectTransform.offsetMin = Vector2.zero;
-        rectTransform.offsetMax = Vector2.zero;
-
-        T panel = panelGo.GetComponent<T>();
-        if(callback != null) callback(panel);
-        panel.ShowMe();
-        panelDictionary.Add(panelName, panel);
+            T panel = go.GetComponent<T>();
+            if(callback != null) callback(panel);
+            panel.ShowMe();
+            panelDictionary.Add(panelName, panel);
+        });
     }
 
     public void HidePanel(string panelName)
@@ -139,7 +107,7 @@ public class UIManager : BaseManager<UIManager>
         if (panelDictionary.ContainsKey(panelName))
         {
             panelDictionary[panelName].HideMe();
-            ResourcesManager.GetInstance().Recycle("UI/" + panelName, panelDictionary[panelName].gameObject);
+            ResourcesManager.GetInstance().Recycle("UI/Panels/" + panelName, panelDictionary[panelName].gameObject);
             panelDictionary.Remove(panelName);
         }
     }

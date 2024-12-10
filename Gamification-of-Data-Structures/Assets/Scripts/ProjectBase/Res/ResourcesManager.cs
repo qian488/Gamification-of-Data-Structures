@@ -24,6 +24,15 @@ public class ResourcesManager : BaseManager<ResourcesManager>
     // 异步加载资源
     public void LoadAsync<T>(string name, UnityAction<T> callback, bool usePool = true) where T : Object
     {
+        // 先尝试同步加载检查资源是否存在
+        T res = Resources.Load<T>(name);
+        if (res == null)
+        {
+            Debug.LogError($"Resource not found: {name}");
+            callback?.Invoke(null);
+            return;
+        }
+
         // 如果是GameObject类型且启用对象池，尝试从对象池获取
         if (typeof(T) == typeof(GameObject) && usePool)
         {
@@ -37,7 +46,7 @@ public class ResourcesManager : BaseManager<ResourcesManager>
             }
         }
 
-        // 如果对象池中没有，则从Resources加载
+        // 如果对象池中没有，则从Resources异步加载
         MonoManager.GetInstance().StartCoroutine(ReallyLoadAsync(name, callback));
     }
 
@@ -46,7 +55,14 @@ public class ResourcesManager : BaseManager<ResourcesManager>
         ResourceRequest request = Resources.LoadAsync<T>(name);
         yield return request;
 
-        if(request.asset is GameObject)
+        if (request.asset == null)
+        {
+            Debug.LogError($"Failed to load resource: {name}");
+            callback?.Invoke(null);
+            yield break;
+        }
+
+        if (request.asset is GameObject)
         {
             callback(GameObject.Instantiate(request.asset) as T);
         }
