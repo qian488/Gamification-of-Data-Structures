@@ -5,21 +5,23 @@ using System.Collections;
 public class GameUIManager : BaseManager<GameUIManager>
 {
     private MazeGameUI mazeGameUI;
-    private AlgorithmVisualizerUI algorithmVisualizerUI;
+    private AlgorithmVisualizerUI algorithmVisualizer;
 
     public void Init()
     {
         Debug.Log("GameUIManager Init start");
-        // 使用UIManager显示面板
+        
+        // 使用UIManager显示迷宫游戏UI
         UIManager.GetInstance().ShowPanel<MazeGameUI>("MazeGameUI", E_UI_Layer.Mid, (panel) =>
         {
             mazeGameUI = panel;
             Debug.Log("MazeGameUI loaded successfully");
         });
 
+        // 使用UIManager显示算法可视化UI
         UIManager.GetInstance().ShowPanel<AlgorithmVisualizerUI>("AlgorithmVisualizerUI", E_UI_Layer.Top, (panel) =>
         {
-            algorithmVisualizerUI = panel;
+            algorithmVisualizer = panel;
             Debug.Log("AlgorithmVisualizerUI loaded successfully");
         });
 
@@ -36,20 +38,24 @@ public class GameUIManager : BaseManager<GameUIManager>
         }
     }
 
-    public void UpdateVisualizerData<T>(IEnumerable<T> collection)
+    public void IncrementSteps()
     {
-        if (algorithmVisualizerUI != null)
+        if (algorithmVisualizer != null)
         {
-            algorithmVisualizerUI.UpdateStackQueueDisplay(collection);
-            algorithmVisualizerUI.IncrementSteps();
+            algorithmVisualizer.IncrementSteps();
         }
     }
 
     public void ResetVisualizer()
     {
-        if (algorithmVisualizerUI != null)
+        if (algorithmVisualizer != null)
         {
-            algorithmVisualizerUI.ResetSteps();
+            algorithmVisualizer.ResetSteps();
         }
+    }
+
+    public AlgorithmVisualizerUI GetAlgorithmVisualizer()
+    {
+        return algorithmVisualizer;
     }
 }

@@ -5,10 +5,10 @@ using System.Collections;
 public abstract class PathFinder
 {
     protected MazeCell[,] maze;
+    protected List<Vector2Int> path = new List<Vector2Int>();
     protected Vector2Int startPos;
     protected Vector2Int endPos;
     protected bool[,] visited;
-    protected Dictionary<Vector2Int, Vector2Int> parentMap;
     
     // 四个方向：上、右、下、左
     protected static readonly Vector2Int[] directions = new Vector2Int[]
@@ -22,13 +22,17 @@ public abstract class PathFinder
     public PathFinder(MazeCell[,] maze)
     {
         this.maze = maze;
-        this.startPos = new Vector2Int(1, 1);
-        this.endPos = new Vector2Int(maze.GetLength(0) - 2, maze.GetLength(1) - 2);
+        this.startPos = new Vector2Int(1, 1);  // 起点
+        this.endPos = new Vector2Int(maze.GetLength(0) - 2, maze.GetLength(1) - 2);  // 终点
         this.visited = new bool[maze.GetLength(0), maze.GetLength(1)];
-        this.parentMap = new Dictionary<Vector2Int, Vector2Int>();
     }
 
     public abstract IEnumerator FindPath();
+
+    public List<Vector2Int> GetPath()
+    {
+        return path;
+    }
 
     protected bool IsValid(Vector2Int pos)
     {
@@ -38,18 +42,27 @@ public abstract class PathFinder
                !visited[pos.x, pos.y];
     }
 
-    protected List<Vector2Int> ReconstructPath()
+    protected IEnumerator StartCoroutine(IEnumerator routine)
     {
-        List<Vector2Int> path = new List<Vector2Int>();
-        Vector2Int current = endPos;
-
-        while (parentMap.ContainsKey(current))
+        while (routine.MoveNext())
         {
-            path.Add(current);
-            current = parentMap[current];
+            yield return routine.Current;
         }
-        path.Add(startPos);
-        path.Reverse();
-        return path;
+    }
+
+    protected void MarkCell(Vector2Int pos, Color color)
+    {
+        if (maze[pos.x, pos.y].CellObject != null)
+        {
+            var renderer = maze[pos.x, pos.y].CellObject.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                Material newMaterial = new Material(renderer.material);
+                newMaterial.color = color;
+                renderer.material = newMaterial;
+            }
+        }
+        // 更新步数
+        GameUIManager.GetInstance().IncrementSteps();
     }
 } 

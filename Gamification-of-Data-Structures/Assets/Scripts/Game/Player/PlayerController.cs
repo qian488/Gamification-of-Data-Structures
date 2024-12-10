@@ -1,15 +1,24 @@
 using UnityEngine;
 
+public enum ViewMode
+{
+    FirstPerson,
+    TopDown
+}
+
 public class PlayerController : MonoBehaviour
 {
     private float moveSpeed = 2f;
     private float mouseSensitivity = 1.5f;
     private Rigidbody rb;
     private bool canMove = false;
-    private float rotationY = 0f;
+    private ViewMode currentViewMode = ViewMode.FirstPerson;
+    private Camera mainCamera;
 
     private void Start()
     {
+        mainCamera = Camera.main;
+
         rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
@@ -28,6 +37,69 @@ public class PlayerController : MonoBehaviour
 
         EventCenter.GetInstance().AddEventListener<Vector2>("PlayerMove", OnPlayerMove);
         EventCenter.GetInstance().AddEventListener<Vector2>("MouseMove", OnMouseMove);
+
+        // 初始化相机位置
+        UpdateCameraView(currentViewMode);
+    }
+
+    private void Update()
+    {
+        // 检测视角切换输入
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            SwitchView();
+        }
+
+        // 检测算法控制输入
+        if (Input.GetKeyDown(KeyCode.Alpha1))  // 按1重新生成迷宫
+        {
+            MazeManager.GetInstance().GenerateMaze();
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))  // 按2进行DFS演示
+        {
+            MazeManager.GetInstance().StartPathFinding(true);  // true表示使用DFS
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))  // 按3进行BFS演示
+        {
+            MazeManager.GetInstance().StartPathFinding(false);  // false表示使用BFS
+        }
+        else if (Input.GetKeyDown(KeyCode.R))  // 按R重置位置
+        {
+            // 重置玩家位置
+            PlayerManager.GetInstance().ResetPlayer();
+            // 重置寻路显示
+            MazeManager.GetInstance().ResetPathVisuals();
+            // 重置算法可视化
+            GameUIManager.GetInstance().ResetVisualizer();
+        }
+        
+        // 检测当前位置的地板
+        CheckAndLightFloor();
+    }
+
+    private void SwitchView()
+    {
+        currentViewMode = (currentViewMode == ViewMode.FirstPerson) ? ViewMode.TopDown : ViewMode.FirstPerson;
+        UpdateCameraView(currentViewMode);
+    }
+
+    private void UpdateCameraView(ViewMode mode)
+    {
+        if (mainCamera == null) return;
+        
+        var cameraFollow = mainCamera.GetComponent<CameraFollow>();
+        if (cameraFollow == null) return;
+
+        switch (mode)
+        {
+            case ViewMode.FirstPerson:
+                cameraFollow.SetFirstPersonView();
+                break;
+
+            case ViewMode.TopDown:
+                cameraFollow.SetTopDownView();
+                break;
+        }
     }
 
     private void OnPlayerMove(Vector2 input)
@@ -46,8 +118,27 @@ public class PlayerController : MonoBehaviour
     {
         if (!canMove) return;
 
-        // 水平旋转
-        transform.Rotate(Vector3.up * mouseDelta.x * mouseSensitivity);
+        // 根据视角模式处理旋转
+        if (currentViewMode == ViewMode.FirstPerson)
+        {
+            // 第一人称模式：直接旋转玩家和相机
+            transform.Rotate(Vector3.up * mouseDelta.x * mouseSensitivity);
+        }
+        else
+        {
+            // 俯视角模式：按住右键时旋转玩家
+            if (Input.GetMouseButton(1))  // 1 代表鼠标右键
+            {
+                transform.Rotate(Vector3.up * mouseDelta.x * mouseSensitivity);
+                
+                // 更新相机的俯视角旋转以匹配玩家方向
+                var cameraFollow = mainCamera.GetComponent<CameraFollow>();
+                if (cameraFollow != null)
+                {
+                    cameraFollow.SetTopDownView();  // 这会根据玩家的新方向更新相机旋转
+                }
+            }
+        }
     }
 
     private void OnCollisionEnter(Collision collision)

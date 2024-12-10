@@ -19,8 +19,29 @@ public class PoolData
         PushGameObject(go);
     }
 
+    public GameObject GetGameObject()
+    {
+        if (poolList.Count == 0 || poolList[0] == null)
+        {
+            Debug.LogWarning("Pool is empty or object is destroyed");
+            return null;
+        }
+
+        GameObject go = poolList[0];
+        poolList.RemoveAt(0);
+        go.SetActive(true);
+        go.transform.SetParent(null, false);
+        return go;
+    }
+
     public void PushGameObject(GameObject go)
     {
+        if (go == null)
+        {
+            Debug.LogWarning("Trying to push null object to pool");
+            return;
+        }
+
         go.SetActive(false);
         poolList.Add(go);
         if (go.transform is RectTransform)
@@ -36,14 +57,5 @@ public class PoolData
         {
             go.transform.SetParent(fatherGameObject.transform, false);
         }
-    }
-
-    public GameObject GetGameObject()
-    {
-        GameObject go = poolList[0];
-        poolList.RemoveAt(0);
-        go.SetActive(true);
-        go.transform.SetParent(null, false);
-        return go;
     }
 }

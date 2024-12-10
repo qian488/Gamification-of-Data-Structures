@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class PlayerManager : BaseManager<PlayerManager>
 {
@@ -14,12 +15,7 @@ public class PlayerManager : BaseManager<PlayerManager>
         if(mainCamera != null)
         {
             var cameraFollow = mainCamera.gameObject.AddComponent<CameraFollow>();
-            cameraFollow.offset = new Vector3(0, 10, -10);
-            cameraFollow.smoothSpeed = 0.125f;
-
-            // 设置相机渲染设置
-            mainCamera.clearFlags = CameraClearFlags.SolidColor;
-            mainCamera.backgroundColor = Color.black;
+            cameraFollow.target = null;
         }
 
         // 加载玩家预制体
@@ -31,7 +27,11 @@ public class PlayerManager : BaseManager<PlayerManager>
             
             if(mainCamera != null)
             {
-                mainCamera.GetComponent<CameraFollow>().target = playerObject.transform;
+                var cameraFollow = mainCamera.GetComponent<CameraFollow>();
+                if (cameraFollow != null)
+                {
+                    cameraFollow.target = playerObject.transform;
+                }
             }
 
             // 注册Update事件
@@ -66,11 +66,14 @@ public class PlayerManager : BaseManager<PlayerManager>
         }
     }
 
-    public void SetPlayerPosition(Vector3 position)
+    public void SetPlayerPosition(Vector3 position, bool isInitialPosition = false)
     {
         if (playerObject != null)
         {
-            startPosition = position;
+            if (isInitialPosition)
+            {
+                startPosition = position;  // 只在初始化时设置起始位置
+            }
             playerObject.transform.position = position;
         }
     }
@@ -79,7 +82,74 @@ public class PlayerManager : BaseManager<PlayerManager>
     {
         if (playerObject != null)
         {
-            playerObject.transform.position = startPosition;
+            // 开始重置动画
+            MonoManager.GetInstance().StartCoroutine(ResetAnimation());
+        }
+    }
+
+    private IEnumerator ResetAnimation()
+    {
+        float duration = 1.0f;  // 动画持续时间
+        float heightMax = 10f;  // 最大上升高度
+        Vector3 startPos = playerObject.transform.position;
+        Vector3 upPos = startPos + Vector3.up * heightMax;
+
+        // 上升阶段
+        float elapsed = 0;
+        while (elapsed < duration/2)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed/(duration/2);
+            // 使用平滑的插值
+            float smoothT = Mathf.SmoothStep(0, 1, t);
+            playerObject.transform.position = Vector3.Lerp(startPos, upPos, smoothT);
+            yield return null;
+        }
+
+        // 短暂消失
+        playerObject.SetActive(false);
+        yield return new WaitForSeconds(0.2f);
+
+        // 设置到起始位置
+        playerObject.transform.position = startPosition;
+        
+        // 重新出现
+        playerObject.SetActive(true);
+        
+        // 下降阶段
+        Vector3 finalPos = startPosition;
+        Vector3 appearPos = finalPos + Vector3.up * heightMax;
+        playerObject.transform.position = appearPos;
+        
+        elapsed = 0;
+        while (elapsed < duration/2)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed/(duration/2);
+            float smoothT = Mathf.SmoothStep(0, 1, t);
+            playerObject.transform.position = Vector3.Lerp(appearPos, finalPos, smoothT);
+            yield return null;
+        }
+
+        // 确保最终位置准确
+        playerObject.transform.position = finalPos;
+    }
+
+    public Vector3 GetPlayerPosition()
+    {
+        return playerObject != null ? playerObject.transform.position : Vector3.zero;
+    }
+
+    public Quaternion GetPlayerRotation()
+    {
+        return playerObject != null ? playerObject.transform.rotation : Quaternion.identity;
+    }
+
+    public void SetPlayerRotation(Quaternion rotation)
+    {
+        if (playerObject != null)
+        {
+            playerObject.transform.rotation = rotation;
         }
     }
 } 

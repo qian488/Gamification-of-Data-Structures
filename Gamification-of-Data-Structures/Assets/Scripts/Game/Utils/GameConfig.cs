@@ -20,4 +20,14 @@ public static class GameConfig
     public static readonly Color VISITED_COLOR = Color.yellow;
     public static readonly Color WALL_COLOR = Color.gray;
     public static readonly Color FLOOR_COLOR = Color.white;
+    
+    // 路径搜索相关配置
+    public static class PathFinding
+    {
+        public static float StepDelay = 0.1f;  // 每步延迟时间
+        public static Color VisitedColor = Color.yellow;  // 已访问节点颜色
+        public static Color PathColor = Color.green;      // 最终路径颜色
+        public static Color StartColor = new Color(0f, 1f, 0f, 0.5f);  // 起点颜色
+        public static Color EndColor = new Color(1f, 0f, 0f, 0.5f);    // 终点颜色
+    }
 } 

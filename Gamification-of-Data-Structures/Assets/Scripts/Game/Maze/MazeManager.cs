@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class MazeManager : BaseManager<MazeManager>
 {
@@ -16,9 +17,14 @@ public class MazeManager : BaseManager<MazeManager>
     private GameObject wallPrefab;
     private GameObject floorPrefab;
     
+    private ParticleSystem startPointEffect;
+    private ParticleSystem endPointEffect;
+    
     public int MazeWidth => mazeWidth;
     public int MazeHeight => mazeHeight;
     public float CellSize => cellSize;
+
+    private bool isFirstGeneration = true;  // 添加标记
 
     public void Init()
     {
@@ -53,6 +59,12 @@ public class MazeManager : BaseManager<MazeManager>
                 ResourcesManager.GetInstance().Recycle(prefabPath, child.gameObject);
             }
             
+            // 清理粒子效果
+            if (startPointEffect != null)
+                GameObject.Destroy(startPointEffect.gameObject);
+            if (endPointEffect != null)
+                GameObject.Destroy(endPointEffect.gameObject);
+            
             // 再销毁容器
             GameObject.Destroy(mazeContainer);
         }
@@ -71,20 +83,91 @@ public class MazeManager : BaseManager<MazeManager>
 
     public void GenerateMaze()
     {
-        // 先生成迷宫数据
-        InitializeMaze();
-        mazeGenerator.GenerateMaze(maze);
-        
-        // 使用协程创建迷宫视觉效果，并在完成后初始化玩家
-        MonoManager.GetInstance().StartCoroutine(GenerateMazeCoroutine());
+        // 先停止所有正在进行的协程
+        MonoManager.GetInstance().StopAllCoroutines();
+
+        // 先清理旧的迷宫
+        if (mazeContainer != null)
+        {
+            // 先禁用所有墙体
+            List<GameObject> wallsToRecycle = new List<GameObject>();
+            foreach (Transform child in mazeContainer.transform)
+            {
+                if (child != null && child.gameObject.name.Contains("Wall"))
+                {
+                    child.gameObject.SetActive(false);
+                    wallsToRecycle.Add(child.gameObject);
+                }
+            }
+
+            // 回收墙体
+            foreach (var wall in wallsToRecycle)
+            {
+                if (wall != null)
+                {
+                    ResourcesManager.GetInstance().Recycle("Prefabs/Wall", wall);
+                }
+            }
+
+            // 清理粒子效果
+            if (startPointEffect != null)
+            {
+                startPointEffect.Stop();
+                GameObject.Destroy(startPointEffect.gameObject);
+                startPointEffect = null;
+            }
+            if (endPointEffect != null)
+            {
+                endPointEffect.Stop();
+                GameObject.Destroy(endPointEffect.gameObject);
+                endPointEffect = null;
+            }
+
+            // 清理墙体对象池
+            PoolManager.GetInstance().ClearPool("Prefabs/Wall");
+        }
+
+        // 等待一帧确保所有清理完成
+        MonoManager.GetInstance().StartCoroutine(DelayedMazeGeneration());
     }
 
-    private IEnumerator GenerateMazeCoroutine()
+    private IEnumerator DelayedMazeGeneration()
     {
-        // 创建视觉效果
-        yield return CreateMazeVisuals();
+        yield return null;  // 等待一帧
+
+        // 初始化新迷宫
+        if (mazeContainer == null)
+        {
+            mazeContainer = new GameObject("MazeContainer");
+        }
         
-        // 视觉效果创建完成后再初始化玩家和播放音效
+        maze = new MazeCell[mazeWidth, mazeHeight];
+        for (int x = 0; x < mazeWidth; x++)
+        {
+            for (int y = 0; y < mazeHeight; y++)
+            {
+                maze[x, y] = new MazeCell(x, y);
+            }
+        }
+
+        // 生成迷宫数据
+        mazeGenerator.GenerateMaze(maze);
+        
+        // 第一次生成时创建地板和墙体，后续只创建墙体
+        if (isFirstGeneration)
+        {
+            yield return CreateMazeVisuals();
+            isFirstGeneration = false;
+        }
+        else
+        {
+            yield return CreateWallsOnly();
+        }
+        
+        // 创建起点和终点的光圈效果
+        CreatePointEffects();
+        
+        // 初始化玩家和播放音效
         InitializePlayer();
         MusicManager.GetInstance().PlaySFX("maze_generate", false);
     }
@@ -201,23 +284,209 @@ public class MazeManager : BaseManager<MazeManager>
         }
     }
 
+    // 新增方法：只创建墙体
+    private IEnumerator CreateWallsOnly()
+    {
+        float centerX = -mazeWidth * cellSize / 2f;
+        float centerZ = -mazeHeight * cellSize / 2f;
+
+        // 创建墙壁
+        for (int x = 0; x < mazeWidth; x++)
+        {
+            for (int y = 0; y < mazeHeight; y++)
+            {
+                if (maze[x, y].IsWall)
+                {
+                    int currentX = x;
+                    int currentY = y;
+                    Vector3 position = new Vector3(
+                        centerX + x * cellSize,
+                        wallHeight / 2f,
+                        centerZ + y * cellSize
+                    );
+
+                    ResourcesManager.GetInstance().LoadAsync<GameObject>("Prefabs/Wall", (cell) =>
+                    {
+                        if (cell != null && currentX < mazeWidth && currentY < mazeHeight)
+                        {
+                            cell.transform.SetParent(mazeContainer.transform);
+                            cell.transform.position = position;
+                            cell.transform.rotation = Quaternion.identity;
+
+                            float height = (currentX == 0 || currentX == mazeWidth - 1 || 
+                                         currentY == 0 || currentY == mazeHeight - 1) 
+                                ? boundaryHeight 
+                                : wallHeight;
+
+                            cell.transform.localScale = new Vector3(
+                                cellSize * 1.01f,
+                                height,
+                                cellSize * 1.01f
+                            );
+                            
+                            // 设置墙体颜色
+                            var renderer = cell.GetComponent<MeshRenderer>();
+                            if (renderer != null)
+                            {
+                                Material newMaterial = new Material(Shader.Find("Standard"));
+                                Color wallColor = (currentX == 0 || currentX == mazeWidth - 1 || 
+                                                currentY == 0 || currentY == mazeHeight - 1)
+                                    ? new Color(0.1f, 0.1f, 0.4f)  // 深蓝色
+                                    : new Color(0.3f, 0.3f, 0.8f); // 浅蓝色
+                                newMaterial.color = wallColor;
+                                newMaterial.SetFloat("_Glossiness", 0.1f);
+                                newMaterial.SetFloat("_Metallic", 0.0f);
+                                renderer.material = newMaterial;
+                                renderer.receiveShadows = true;
+                            }
+                            
+                            PrefabChecker.CheckAndAddMazeCellComponents(cell, true);
+                            maze[currentX, currentY].CellObject = cell;
+                        }
+                    }, true);
+                }
+            }
+            yield return null;
+        }
+    }
+
     public void StartPathFinding(bool useDFS = true)
+    {
+        // 获取玩家当前位置
+        Vector3 playerPos = PlayerManager.GetInstance().GetPlayerPosition();
+        float centerX, centerZ;
+        GetMazeCenter(out centerX, out centerZ);
+
+        // 计算玩家在迷宫中的网格坐标
+        int playerGridX = Mathf.RoundToInt((playerPos.x - centerX) / cellSize);
+        int playerGridZ = Mathf.RoundToInt((playerPos.z - centerZ) / cellSize);
+
+        // 检查玩家是否在起点(1,1)
+        if (playerGridX != 1 || playerGridZ != 1)
+        {
+            // 如果不在起点，先重置玩家位置
+            Debug.Log("Player not at start position, resetting...");
+            PlayerManager.GetInstance().ResetPlayer();
+            
+            // 等待重置动画完成后再开始寻路
+            MonoManager.GetInstance().StartCoroutine(DelayedPathFinding(useDFS));
+        }
+        else
+        {
+            // 玩家在起点，直接开始寻路
+            StartPathFindingInternal(useDFS);
+        }
+    }
+
+    private IEnumerator DelayedPathFinding(bool useDFS)
+    {
+        // 等待重置动���完成（动画时间 + 额外缓冲）
+        yield return new WaitForSeconds(1.5f);
+        
+        // 开始寻路
+        StartPathFindingInternal(useDFS);
+    }
+
+    private void StartPathFindingInternal(bool useDFS)
     {
         ResetPathVisuals();
         
+        var visualizer = GameUIManager.GetInstance().GetAlgorithmVisualizer();
         if (useDFS)
         {
             currentPathFinder = new DFSPathFinder(maze);
+            visualizer.ShowDFSInfo();
+            visualizer.UpdateStatus("开始深度优先搜索...");
         }
         else
         {
             currentPathFinder = new BFSPathFinder(maze);
+            visualizer.ShowBFSInfo();
+            visualizer.UpdateStatus("开始广度优先搜索...");
         }
 
-        MonoManager.GetInstance().StartCoroutine(currentPathFinder.FindPath());
+        // 开始寻路并在完成后移动玩家
+        MonoManager.GetInstance().StartCoroutine(PathFindingAndMove());
     }
 
-    private void ResetPathVisuals()
+    private IEnumerator PathFindingAndMove()
+    {
+        var visualizer = GameUIManager.GetInstance().GetAlgorithmVisualizer();
+        visualizer.UpdateStatus("正在搜索路径...");
+        
+        // 等待寻路完成
+        yield return currentPathFinder.FindPath();
+        
+        // 获取路径
+        var path = currentPathFinder.GetPath();
+        if (path != null && path.Count > 0)
+        {
+            visualizer.UpdateStatus($"找到路径！步数：{path.Count}");
+            // 开始沿路径移动玩家
+            StartPlayerMovement(path);
+        }
+        else
+        {
+            visualizer.UpdateStatus("未找到有效路径！");
+        }
+    }
+
+    private void StartPlayerMovement(List<Vector2Int> path)
+    {
+        // 将网格坐标转换为世界坐标
+        List<Vector3> worldPath = new List<Vector3>();
+        float centerX, centerZ;
+        GetMazeCenter(out centerX, out centerZ);
+        
+        foreach (var point in path)
+        {
+            Vector3 worldPos = new Vector3(
+                centerX + point.x * cellSize,
+                1.5f,  // 玩家高度
+                centerZ + point.y * cellSize
+            );
+            worldPath.Add(worldPos);
+        }
+
+        // 开始移动玩家
+        MonoManager.GetInstance().StartCoroutine(MovePlayerAlongPath(worldPath));
+    }
+
+    private IEnumerator MovePlayerAlongPath(List<Vector3> worldPath)
+    {
+        float moveSpeed = 5f;  // 移动速度
+        float rotateSpeed = 10f;  // 旋转速度
+        float arrivalDistance = 0.1f;  // 到达判定距离
+
+        foreach (Vector3 targetPos in worldPath)
+        {
+            // 获取玩家当前位置
+            Vector3 currentPos = PlayerManager.GetInstance().GetPlayerPosition();
+            
+            while (Vector3.Distance(currentPos, targetPos) > arrivalDistance)
+            {
+                // 计算方向
+                Vector3 direction = (targetPos - currentPos).normalized;
+                
+                // 计算旋转
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+                PlayerManager.GetInstance().SetPlayerRotation(
+                    Quaternion.Lerp(PlayerManager.GetInstance().GetPlayerRotation(), 
+                                  targetRotation, 
+                                  rotateSpeed * Time.deltaTime)
+                );
+                
+                // 移动
+                Vector3 newPos = Vector3.MoveTowards(currentPos, targetPos, moveSpeed * Time.deltaTime);
+                PlayerManager.GetInstance().SetPlayerPosition(newPos);
+                
+                currentPos = newPos;
+                yield return null;
+            }
+        }
+    }
+
+    public void ResetPathVisuals()
     {
         for (int x = 0; x < mazeWidth; x++)
         {
@@ -252,7 +521,7 @@ public class MazeManager : BaseManager<MazeManager>
         float centerZ = -mazeHeight * cellSize / 2f;
         // 设置玩家在起点位置(1,1)，稍微抬高起始位置以避免穿透地面
         Vector3 startPos = new Vector3(centerX + cellSize, 1.5f, centerZ + cellSize);
-        PlayerManager.GetInstance().SetPlayerPosition(startPos);
+        PlayerManager.GetInstance().SetPlayerPosition(startPos, true);  // 标记为初始位置
     }
 
     private void OnDestroy()
@@ -305,5 +574,71 @@ public class MazeManager : BaseManager<MazeManager>
     {
         centerX = -mazeWidth * cellSize / 2f;
         centerZ = -mazeHeight * cellSize / 2f;
+    }
+
+    private void CreatePointEffects()
+    {
+        // 创建起点效果
+        startPointEffect = CreateCircleEffect(new Color(0f, 1f, 0f, 0.5f));  // 绿色光圈
+        Vector3 startPos = GetWorldPosition(1, 1, 0.1f);  // 稍微抬高一点避免穿透
+        startPointEffect.transform.position = startPos;
+
+        // 创建终点效果
+        endPointEffect = CreateCircleEffect(new Color(1f, 0f, 0f, 0.5f));  // 红色光圈
+        Vector3 endPos = GetWorldPosition(mazeWidth - 2, mazeHeight - 2, 0.1f);
+        endPointEffect.transform.position = endPos;
+    }
+
+    private ParticleSystem CreateCircleEffect(Color color)
+    {
+        GameObject effectObj = new GameObject("CircleEffect");
+        effectObj.transform.SetParent(mazeContainer.transform);
+        
+        ParticleSystem ps = effectObj.AddComponent<ParticleSystem>();
+        ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);  // 先停止粒子系统
+        
+        var main = ps.main;
+        main.loop = true;
+        main.duration = 1f;
+        main.startLifetime = 1f;
+        main.startSpeed = 0f;
+        main.startSize = cellSize * 0.8f;  // 光圈大小略小于格子
+        main.maxParticles = 100;
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+
+        var emission = ps.emission;
+        emission.rateOverTime = 10;
+
+        var shape = ps.shape;
+        shape.shapeType = ParticleSystemShapeType.Circle;
+        shape.radius = cellSize * 0.4f;
+        shape.arc = 360f;
+
+        var colorOverLifetime = ps.colorOverLifetime;
+        colorOverLifetime.enabled = true;
+        
+        Gradient gradient = new Gradient();
+        gradient.SetKeys(
+            new GradientColorKey[] { new GradientColorKey(color, 0.0f), new GradientColorKey(color, 1.0f) },
+            new GradientAlphaKey[] { new GradientAlphaKey(0.8f, 0.0f), new GradientAlphaKey(0.0f, 1.0f) }
+        );
+        colorOverLifetime.color = gradient;
+
+        var renderer = ps.GetComponent<ParticleSystemRenderer>();
+        renderer.material = new Material(Shader.Find("Particles/Standard Unlit"));
+        renderer.renderMode = ParticleSystemRenderMode.Billboard;
+        renderer.sortMode = ParticleSystemSortMode.Distance;
+
+        // 设置完所有参数后再启动
+        ps.Play();
+
+        return ps;
+    }
+
+    private Vector3 GetWorldPosition(int x, int y, float height)
+    {
+        float centerX, centerZ;
+        GetMazeCenter(out centerX, out centerZ);
+        return new Vector3(centerX + x * cellSize, height, centerZ + y * cellSize);
     }
 }

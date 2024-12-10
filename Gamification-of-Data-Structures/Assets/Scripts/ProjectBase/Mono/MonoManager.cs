@@ -61,5 +61,10 @@ public class MonoManager : BaseManager<MonoManager>
     {
         controller.StopCoroutine(routine);
     }
+
+    public void StopAllCoroutines()
+    {
+        controller.StopAllCoroutines();
+    }
     #endregion
 }
