@@ -3,15 +3,34 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// 算法可视化UI面板类
+/// 负责显示和控制算法执行过程的可视化界面
+/// </summary>
+/// <remarks>
+/// 主要功能：
+/// 1. 显示算法执行的实时状态
+/// 2. 提供操作指南说明
+/// 3. 显示算法原理介绍
+/// 4. 支持UI面板的显示/隐藏
+/// 5. 记录和显示算法执行步骤
+/// </remarks>
 public class AlgorithmVisualizerUI : BasePanel
 {
+    /// <summary>显示执行步骤的文本组件</summary>
     private Text stepsText;
+    /// <summary>当前执行步骤计数</summary>
     private int stepCount = 0;
-    private Text operationGuideText;  // 操作指南
-    private Text algorithmInfoText;    // 算法信息
-    private Text statusText;          // 当前状态
-    private GameObject bgPanel;       // 背景面板
-    private bool isPanelVisible = true;  // 面板显示状态
+    /// <summary>显示操作指南的文本组件</summary>
+    private Text operationGuideText;
+    /// <summary>显示算法信息的文本组件</summary>
+    private Text algorithmInfoText;
+    /// <summary>显示当前状态的文本组件</summary>
+    private Text statusText;
+    /// <summary>背景面板</summary>
+    private GameObject bgPanel;
+    /// <summary>面板显示状态</summary>
+    private bool isPanelVisible = true;
 
     protected override void Awake()
     {

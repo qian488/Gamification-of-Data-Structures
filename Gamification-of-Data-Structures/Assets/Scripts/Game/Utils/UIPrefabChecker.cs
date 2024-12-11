@@ -1,6 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// UI预制体检查工具类
+/// 专门负责检查和配置UI相关的预制体
+/// 包括迷宫游戏UI和算法可视化UI的组件检查和设置
+/// </summary>
 public static class UIPrefabChecker
 {
     public static void CheckAndAddMazeGameUIComponents(GameObject uiObject)

@@ -1,13 +1,29 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+/// <summary>
+/// 迷宫生成器类
+/// 使用深度优先搜索算法生成随机迷宫
+/// </summary>
+/// <remarks>
+/// 主要功能：
+/// 1. 随机生成迷宫布局
+/// 2. 确保迷宫的连通性
+/// 3. 设置起点和终点
+/// 4. 处理迷宫边界
+/// </remarks>
 public class MazeGenerator
 {
+    /// <summary>迷宫数据数组</summary>
     private MazeCell[,] maze;
+    /// <summary>迷宫宽度</summary>
     private int width;
+    /// <summary>迷宫高度</summary>
     private int height;
+    /// <summary>随机数生成器</summary>
     private System.Random random;
 
+    /// <summary>可移动方向数组：上、右、下、左</summary>
     private readonly int[,] directions = new int[,] { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } };
 
     public MazeGenerator()
@@ -15,6 +31,10 @@ public class MazeGenerator
         random = new System.Random();
     }
 
+    /// <summary>
+    /// 生成新的迷宫
+    /// </summary>
+    /// <param name="mazeData">迷宫数据数组</param>
     public void GenerateMaze(MazeCell[,] mazeData)
     {
         maze = mazeData;
@@ -30,6 +50,9 @@ public class MazeGenerator
         SetStartAndEnd();
     }
 
+    /// <summary>
+    /// 初始化迷宫，将所有单元格设置为墙
+    /// </summary>
     private void InitializeMaze()
     {
         for (int x = 0; x < width; x++)
@@ -42,6 +65,11 @@ public class MazeGenerator
         }
     }
 
+    /// <summary>
+    /// 使用深度优先搜索算法开凿通道
+    /// </summary>
+    /// <param name="x">当前X坐标</param>
+    /// <param name="y">当前Y坐标</param>
     private void CarvePassages(int x, int y)
     {
         maze[x, y].IsWall = false;

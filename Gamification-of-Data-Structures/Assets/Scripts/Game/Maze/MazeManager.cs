@@ -2,16 +2,37 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// 迷宫管理器类
+/// 负责迷宫的创建、更新和交互管理
+/// </summary>
+/// <remarks>
+/// 主要功能：
+/// 1. 管理迷宫的生成和重置
+/// 2. 处理迷宫的可视化显示
+/// 3. 管理迷宫中的特效和光照
+/// 4. 协调玩家与迷宫的交互
+/// 5. 处理寻路算法的可视化
+/// </remarks>
 public class MazeManager : BaseManager<MazeManager>
 {
+    /// <summary>迷宫宽度</summary>
     private int mazeWidth = 15;
+    /// <summary>迷宫高度</summary>
     private int mazeHeight = 15;
+    /// <summary>单元格大小</summary>
     private float cellSize = 3f;
+    /// <summary>墙壁高度</summary>
     private float wallHeight = 5f;
+    /// <summary>边界墙高度</summary>
     private float boundaryHeight = 8f;
+    /// <summary>迷宫数据数组</summary>
     private MazeCell[,] maze;
+    /// <summary>迷宫生成器实例</summary>
     private MazeGenerator mazeGenerator;
+    /// <summary>迷宫容器对象</summary>
     private GameObject mazeContainer;
+    /// <summary>当前使用的寻路器</summary>
     private PathFinder currentPathFinder;
 
     private GameObject wallPrefab;
@@ -26,6 +47,10 @@ public class MazeManager : BaseManager<MazeManager>
 
     private bool isFirstGeneration = true;  // 添加标记
 
+    /// <summary>
+    /// 初始化迷宫管理器
+    /// 加载必要的资源并设置初始状态
+    /// </summary>
     public void Init()
     {
         // 先清理可能存在的游离预制体
@@ -81,6 +106,10 @@ public class MazeManager : BaseManager<MazeManager>
         }
     }
 
+    /// <summary>
+    /// 生成新的迷宫
+    /// 包括清理旧迷宫和创建新迷宫的过程
+    /// </summary>
     public void GenerateMaze()
     {
         // 先停止所有正在进行的协程
@@ -167,11 +196,19 @@ public class MazeManager : BaseManager<MazeManager>
         // 创建起点和终点的光圈效果
         CreatePointEffects();
         
-        // 初始化玩家和播放音效
-        InitializePlayer();
+        // 只设置玩家位置，不进行初始化
+        float centerX = -mazeWidth * cellSize / 2f;
+        float centerZ = -mazeHeight * cellSize / 2f;
+        Vector3 startPos = new Vector3(centerX + cellSize, 1.5f, centerZ + cellSize);
+        PlayerManager.GetInstance().SetPlayerPosition(startPos, true);
+        
         MusicManager.GetInstance().PlaySFX("maze_generate", false);
     }
 
+    /// <summary>
+    /// 创建迷宫的视觉效果
+    /// 包括墙壁、地板和特效的创建
+    /// </summary>
     private IEnumerator CreateMazeVisuals()
     {
         float centerX = -mazeWidth * cellSize / 2f;
@@ -208,12 +245,15 @@ public class MazeManager : BaseManager<MazeManager>
                             var renderer = cell.GetComponent<MeshRenderer>();
                             if (renderer != null)
                             {
-                                Material newMaterial = new Material(Shader.Find("Standard"));
-                                newMaterial.color = new Color(0.15f, 0.15f, 0.15f);  // 深色地板
-                                newMaterial.SetFloat("_Glossiness", 0.1f);           // 低光泽
-                                newMaterial.SetFloat("_Metallic", 0.0f);             // 非金属
-                                renderer.material = newMaterial;
-                                renderer.receiveShadows = true;                       // 接收阴影
+                                // 加载预制材质
+                                ResourcesManager.GetInstance().LoadAsync<Material>("Materials/FloorMaterial", (material) =>
+                                {
+                                    if (material != null)
+                                    {
+                                        Material instanceMaterial = new Material(material);
+                                        renderer.material = instanceMaterial;
+                                    }
+                                });
                             }
                             
                             maze[currentX, currentY].CellObject = cell;
@@ -262,16 +302,20 @@ public class MazeManager : BaseManager<MazeManager>
                             var renderer = cell.GetComponent<MeshRenderer>();
                             if (renderer != null)
                             {
-                                Material newMaterial = new Material(Shader.Find("Standard"));
-                                Color wallColor = (currentX == 0 || currentX == mazeWidth - 1 || 
-                                                currentY == 0 || currentY == mazeHeight - 1)
-                                    ? new Color(0.1f, 0.1f, 0.4f)  // 深蓝色
-                                    : new Color(0.3f, 0.3f, 0.8f); // 浅蓝色
-                                newMaterial.color = wallColor;
-                                newMaterial.SetFloat("_Glossiness", 0.1f);
-                                newMaterial.SetFloat("_Metallic", 0.0f);
-                                renderer.material = newMaterial;
-                                renderer.receiveShadows = true;
+                                // 加载预制材质
+                                Material wallMaterial = Resources.Load<Material>("Materials/WallMaterial");
+                                if (wallMaterial != null)
+                                {
+                                    // 创建材质实例
+                                    Material instanceMaterial = new Material(wallMaterial);
+                                    // 根据是否是边界墙设置不同颜色
+                                    Color wallColor = (currentX == 0 || currentX == mazeWidth - 1 || 
+                                                    currentY == 0 || currentY == mazeHeight - 1)
+                                        ? new Color(0.2f, 0.2f, 0.6f)  // 深蓝色
+                                        : new Color(0.4f, 0.4f, 0.9f); // 浅蓝色
+                                    instanceMaterial.color = wallColor;
+                                    renderer.material = instanceMaterial;
+                                }
                             }
                             
                             PrefabChecker.CheckAndAddMazeCellComponents(cell, true);
@@ -328,16 +372,20 @@ public class MazeManager : BaseManager<MazeManager>
                             var renderer = cell.GetComponent<MeshRenderer>();
                             if (renderer != null)
                             {
-                                Material newMaterial = new Material(Shader.Find("Standard"));
-                                Color wallColor = (currentX == 0 || currentX == mazeWidth - 1 || 
-                                                currentY == 0 || currentY == mazeHeight - 1)
-                                    ? new Color(0.1f, 0.1f, 0.4f)  // 深蓝色
-                                    : new Color(0.3f, 0.3f, 0.8f); // 浅蓝色
-                                newMaterial.color = wallColor;
-                                newMaterial.SetFloat("_Glossiness", 0.1f);
-                                newMaterial.SetFloat("_Metallic", 0.0f);
-                                renderer.material = newMaterial;
-                                renderer.receiveShadows = true;
+                                // 加载预制材质
+                                Material wallMaterial = Resources.Load<Material>("Materials/WallMaterial");
+                                if (wallMaterial != null)
+                                {
+                                    // 创建材质实例
+                                    Material instanceMaterial = new Material(wallMaterial);
+                                    // 根据是否是边界墙设置不同颜色
+                                    Color wallColor = (currentX == 0 || currentX == mazeWidth - 1 || 
+                                                    currentY == 0 || currentY == mazeHeight - 1)
+                                        ? new Color(0.2f, 0.2f, 0.6f)  // 深蓝色
+                                        : new Color(0.4f, 0.4f, 0.9f); // 浅蓝色
+                                    instanceMaterial.color = wallColor;
+                                    renderer.material = instanceMaterial;
+                                }
                             }
                             
                             PrefabChecker.CheckAndAddMazeCellComponents(cell, true);
@@ -359,7 +407,10 @@ public class MazeManager : BaseManager<MazeManager>
         ResetPathVisuals();
         
         // 重置玩家位置
-        InitializePlayer();
+        float centerX = -mazeWidth * cellSize / 2f;
+        float centerZ = -mazeHeight * cellSize / 2f;
+        Vector3 startPos = new Vector3(centerX + cellSize, 1.5f, centerZ + cellSize);
+        PlayerManager.GetInstance().SetPlayerPosition(startPos, true);
         
         // 重置UI显示
         var visualizer = GameUIManager.GetInstance().GetAlgorithmVisualizer();
@@ -545,7 +596,7 @@ public class MazeManager : BaseManager<MazeManager>
     // 添加辅助方法检查直线路径
     private bool CheckStraightPath(Vector2Int from, Vector2Int to)
     {
-        // 如果两点相同，返回true
+        // 如果两点相同，���回true
         if (from == to) return true;
 
         // 确保两点在同一直线上
@@ -609,11 +660,11 @@ public class MazeManager : BaseManager<MazeManager>
 
     public void InitializePlayer()
     {
+        // 不创建玩家，只设置位置
         float centerX = -mazeWidth * cellSize / 2f;
         float centerZ = -mazeHeight * cellSize / 2f;
-        // 设置玩家在起点位置(1,1)，稍微抬高起始位置以避免穿透地面
         Vector3 startPos = new Vector3(centerX + cellSize, 1.5f, centerZ + cellSize);
-        PlayerManager.GetInstance().SetPlayerPosition(startPos, true);  // 标记为初始位置
+        PlayerManager.GetInstance().SetPlayerPosition(startPos, true);
     }
 
     private void OnDestroy()
@@ -631,33 +682,23 @@ public class MazeManager : BaseManager<MazeManager>
 
     public void LightFloor(int x, int z)
     {
-        // 检查坐标是否有效
-        if (x < 0 || x >= mazeWidth || z < 0 || z >= mazeHeight) return;
+        // 检查坐标是否有效且maze已初始化
+        if (maze == null || x < 0 || x >= mazeWidth || z < 0 || z >= mazeHeight) return;
         
-        // 如果是地板且还未发光
-        if (!maze[x, z].IsWall && !maze[x, z].IsLit)
+        // 检查是否是地板且未发光
+        if (!maze[x, z].IsWall && !maze[x, z].IsLit && maze[x, z].CellObject != null)
         {
             maze[x, z].IsLit = true;
-            
-            // 获取地板对象
-            GameObject floor = maze[x, z].CellObject;
-            if (floor != null)
+            var renderer = maze[x, z].CellObject.GetComponent<MeshRenderer>();
+            if (renderer != null)
             {
-                var renderer = floor.GetComponent<MeshRenderer>();
-                if (renderer != null)
-                {
-                    // 创建发光材质
-                    Material glowMaterial = new Material(renderer.material);
-                    glowMaterial.color = new Color(0.3f, 0.3f, 0.4f);  // 发光颜色
-                    glowMaterial.SetFloat("_Glossiness", 0.5f);        // 增加光泽
-                    glowMaterial.SetFloat("_Metallic", 0.2f);          // 增加金属感
-                    
-                    // 如果需要自发光效果，可以设置自发光颜色
-                    glowMaterial.EnableKeyword("_EMISSION");
-                    glowMaterial.SetColor("_EmissionColor", new Color(0.1f, 0.1f, 0.2f));
-                    
-                    renderer.material = glowMaterial;
-                }
+                Material glowMaterial = new Material(Shader.Find("Standard"));
+                glowMaterial.color = new Color(0.3f, 0.3f, 0.4f);
+                glowMaterial.SetFloat("_Glossiness", 0.5f);
+                glowMaterial.SetFloat("_Metallic", 0.2f);
+                glowMaterial.EnableKeyword("_EMISSION");
+                glowMaterial.SetColor("_EmissionColor", new Color(0.1f, 0.1f, 0.2f));
+                renderer.material = glowMaterial;
             }
         }
     }
@@ -732,5 +773,28 @@ public class MazeManager : BaseManager<MazeManager>
         float centerX, centerZ;
         GetMazeCenter(out centerX, out centerZ);
         return new Vector3(centerX + x * cellSize, height, centerZ + y * cellSize);
+    }
+
+    private void SetupLighting()
+    {
+        // 找到场景中的Directional Light
+        Light directionalLight = GameObject.Find("Directional Light")?.GetComponent<Light>();
+        if (directionalLight != null)
+        {
+            // 设置光照强度
+            directionalLight.intensity = 1.5f;
+            
+            // 设置光照颜色（纯白色）
+            directionalLight.color = Color.white;
+            
+            // 设置阴影类型
+            directionalLight.shadows = LightShadows.Soft;
+            
+            // 设置阴影强度
+            directionalLight.shadowStrength = 0.7f;
+            
+            // 调整光源角度
+            directionalLight.transform.rotation = Quaternion.Euler(50f, 30f, 0f);
+        }
     }
 }

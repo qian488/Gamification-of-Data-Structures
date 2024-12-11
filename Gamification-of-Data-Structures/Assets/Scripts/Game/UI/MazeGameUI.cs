@@ -2,8 +2,20 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
+/// <summary>
+/// 迷宫游戏UI面板类
+/// 负责显示和处理迷宫游戏的主要UI界面
+/// </summary>
+/// <remarks>
+/// 主要功能：
+/// 1. 创建和管理游戏控制按钮
+/// 2. 处理按钮点击事件
+/// 3. 显示游戏完成面板
+/// 4. 提供UI创建的辅助方法
+/// </remarks>
 public class MazeGameUI : BasePanel
 {
+    /// <summary>游戏完成时显示的面板</summary>
     private GameObject finishPanel;
 
     protected override void Awake()
@@ -12,6 +24,10 @@ public class MazeGameUI : BasePanel
         InitComponents();
     }
 
+    /// <summary>
+    /// 初始化UI组件
+    /// 创建按钮面板和结束面板
+    /// </summary>
     private void InitComponents()
     {
         // 创建按钮面板
@@ -33,6 +49,10 @@ public class MazeGameUI : BasePanel
         finishPanel.SetActive(false);
     }
 
+    /// <summary>
+    /// 显示游戏完成面板
+    /// 当玩家到达终点时调用
+    /// </summary>
     public void ShowFinishPanel()
     {
         if (finishPanel != null)
@@ -41,6 +61,17 @@ public class MazeGameUI : BasePanel
         }
     }
 
+    /// <summary>
+    /// 处理按钮点击事件
+    /// </summary>
+    /// <param name="btnName">被点击的按钮名称</param>
+    /// <remarks>
+    /// 支持的按钮：
+    /// - GenerateBtn：生成新迷宫
+    /// - DFSBtn：开始深度优先搜索
+    /// - BFSBtn：开始广度优先搜索
+    /// - ResetBtn：重置当前迷宫
+    /// </remarks>
     protected override void OnClick(string btnName)
     {
         switch (btnName)

@@ -1,7 +1,29 @@
 using UnityEngine;
 
+/// <summary>
+/// 预制体检查工具类
+/// 负责检查和配置游戏对象的必要组件，确保对象功能完整
+/// </summary>
+/// <remarks>
+/// 主要功能：
+/// 1. 检查和添加玩家对象必需的组件
+/// 2. 检查和添加迷宫单元格必需的组件
+/// 3. 检查和添加UI对象必需的组件
+/// 4. 自动配置组件的默认参数
+/// </remarks>
 public class PrefabChecker
 {
+    /// <summary>
+    /// 检查并添加玩家对象所需的所有组件
+    /// </summary>
+    /// <param name="playerObject">玩家游戏对象</param>
+    /// <remarks>
+    /// 添加的组件包括：
+    /// - PlayerController：控制玩家行为
+    /// - Rigidbody：物理模拟
+    /// - CapsuleCollider：碰撞检测
+    /// - Light：玩家随身光源
+    /// </remarks>
     public static void CheckAndAddPlayerComponents(GameObject playerObject)
     {
         // 检查并添加必需的组件
@@ -49,6 +71,18 @@ public class PrefabChecker
         }
     }
 
+    /// <summary>
+    /// 检查并添加迷宫单元格所需的组件
+    /// </summary>
+    /// <param name="cellObject">单元格游戏对象</param>
+    /// <param name="isWall">是否是墙壁</param>
+    /// <remarks>
+    /// 添加的组件包括：
+    /// - BoxCollider：碰撞检测
+    /// - MeshRenderer：网格渲染
+    /// - MeshFilter：网格过滤器
+    /// 如果是墙壁，还会添加Wall标签
+    /// </remarks>
     public static void CheckAndAddMazeCellComponents(GameObject cellObject, bool isWall)
     {
         // 检查并添加必需的组件

@@ -2,12 +2,28 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// 广度优先搜索寻路器
+/// 实现迷宫中的广度优先搜索算法
+/// </summary>
+/// <remarks>
+/// 主要特点：
+/// 1. 按层级顺序探索迷宫
+/// 2. 保证找到最短路径
+/// 3. 提供实时的搜索过程可视化
+/// 4. 支持平滑的路径移动
+/// </remarks>
 public class BFSPathFinder : PathFinder
 {
+    /// <summary>用于BFS的队列</summary>
     private Queue<Vector2Int> queue = new Queue<Vector2Int>();
+    /// <summary>记录每个位置的父节点</summary>
     private Dictionary<Vector2Int, Vector2Int> parent = new Dictionary<Vector2Int, Vector2Int>();
+    /// <summary>当前正在探索的位置</summary>
     private Vector2Int currentExploring;
+    /// <summary>已探索的节点数量</summary>
     private int exploredCount = 0;
+    /// <summary>用于平滑移动的路径队列</summary>
     private Queue<Vector2Int> movementPath = new Queue<Vector2Int>();
 
     public BFSPathFinder(MazeCell[,] maze) : base(maze)
@@ -15,6 +31,10 @@ public class BFSPathFinder : PathFinder
         currentExploring = startPos;
     }
 
+    /// <summary>
+    /// 获取当前正在探索的位置
+    /// </summary>
+    /// <returns>当前探索位置的坐标</returns>
     public override Vector2Int GetCurrentExploringPosition()
     {
         if (movementPath.Count > 0)
@@ -29,6 +49,10 @@ public class BFSPathFinder : PathFinder
         return exploredCount;
     }
 
+    /// <summary>
+    /// 执行BFS寻路的每一步
+    /// 包含可视化和移动效果
+    /// </summary>
     public override IEnumerator<YieldInstruction> FindPathStepByStep()
     {
         queue.Clear();

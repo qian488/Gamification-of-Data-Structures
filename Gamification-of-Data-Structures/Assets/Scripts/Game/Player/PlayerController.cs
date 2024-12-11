@@ -1,18 +1,42 @@
 using UnityEngine;
 
+/// <summary>
+/// 视角模式枚举
+/// 定义游戏中可用的视角模式
+/// </summary>
 public enum ViewMode
 {
+    /// <summary>第一人称视角</summary>
     FirstPerson,
+    /// <summary>俯视角视角</summary>
     TopDown
 }
 
+/// <summary>
+/// 玩家控制器类
+/// 负责处理玩家的输入、移动和交互
+/// </summary>
+/// <remarks>
+/// 主要功能：
+/// 1. 处理键盘和鼠标输入
+/// 2. 控制玩家移动和旋转
+/// 3. 管理视角切换
+/// 4. 处理碰撞检测
+/// 5. 与迷宫环境交互
+/// </remarks>
 public class PlayerController : MonoBehaviour
 {
+    /// <summary>玩家移动速度</summary>
     private float moveSpeed = 2f;
+    /// <summary>鼠标灵敏度</summary>
     private float mouseSensitivity = 1.5f;
+    /// <summary>刚体组件引用</summary>
     private Rigidbody rb;
+    /// <summary>是否允许移动</summary>
     private bool canMove = false;
+    /// <summary>当前视角模式</summary>
     private ViewMode currentViewMode = ViewMode.FirstPerson;
+    /// <summary>主相机引用</summary>
     private Camera mainCamera;
 
     private void Start()
