@@ -78,7 +78,7 @@ public class DFSPathFinder : PathFinder
             }
 
             // 每探索一个节点后等待一帧
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.05f);
         }
     }
 

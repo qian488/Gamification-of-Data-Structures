@@ -51,7 +51,7 @@ public class BFSPathFinder : PathFinder
                 
                 while (movementPath.Count > 0)
                 {
-                    yield return new WaitForSeconds(0.1f);
+                    yield return new WaitForSeconds(0.05f);
                     currentExploring = movementPath.Dequeue();
                 }
             }
@@ -76,7 +76,7 @@ public class BFSPathFinder : PathFinder
                 }
             }
 
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.05f);
         }
     }
 

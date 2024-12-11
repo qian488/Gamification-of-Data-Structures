@@ -446,8 +446,8 @@ public class MazeManager : BaseManager<MazeManager>
         );
 
         // 设置移动参数
-        float moveSpeed = 5f;
-        float rotateSpeed = 10f;
+        float moveSpeed = 10f;
+        float rotateSpeed = 15f;
         float arrivalDistance = 0.1f;
 
         // 开始寻路过程
