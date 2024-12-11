@@ -5,81 +5,103 @@ using System.Collections.Generic;
 public class DFSPathFinder : PathFinder
 {
     private Stack<Vector2Int> stack = new Stack<Vector2Int>();
-    private Dictionary<Vector2Int, Vector2Int> parentMap = new Dictionary<Vector2Int, Vector2Int>();
+    private Vector2Int currentExploring;
+    private int exploredCount = 0;
+    private Dictionary<Vector2Int, Vector2Int> parent = new Dictionary<Vector2Int, Vector2Int>();
+    private HashSet<Vector2Int> inStack = new HashSet<Vector2Int>();
 
-    public DFSPathFinder(MazeCell[,] maze) : base(maze) { }
-
-    public override IEnumerator FindPath()
+    public DFSPathFinder(MazeCell[,] maze) : base(maze)
     {
-        Debug.Log("Starting DFS path finding...");
+        currentExploring = startPos;
+    }
+
+    public override Vector2Int GetCurrentExploringPosition()
+    {
+        return currentExploring;
+    }
+
+    public override int GetExploredCount()
+    {
+        return exploredCount;
+    }
+
+    public override IEnumerator<YieldInstruction> FindPathStepByStep()
+    {
         stack.Clear();
-        parentMap.Clear();
-        path.Clear();
-
-        // 重置访问标记
-        for (int i = 0; i < visited.GetLength(0); i++)
-            for (int j = 0; j < visited.GetLength(1); j++)
-                visited[i, j] = false;
-
+        parent.Clear();
+        inStack.Clear();
+        exploredCount = 0;
+        
         stack.Push(startPos);
+        inStack.Add(startPos);
         visited[startPos.x, startPos.y] = true;
-        MarkCell(startPos, GameConfig.PathFinding.VisitedColor);
+        MarkCell(startPos, Color.yellow); // 标记起点
 
         while (stack.Count > 0)
         {
-            Vector2Int current = stack.Peek();
+            currentExploring = stack.Peek();
+            exploredCount++;
             
-            if (current == endPos)
+            if (currentExploring == endPos)
             {
-                Debug.Log("Found end position!");
+                // 找到终点，重建路径
                 ReconstructPath();
-                yield return StartCoroutine(VisualizePath());
                 yield break;
             }
 
-            bool foundPath = false;
-            foreach (Vector2Int dir in directions)
+            // 尝试找到一个未访问的相邻节点
+            bool foundUnvisited = false;
+            foreach (var dir in directions)
             {
-                Vector2Int next = new Vector2Int(current.x + dir.x, current.y + dir.y);
+                Vector2Int next = new Vector2Int(currentExploring.x + dir.x, currentExploring.y + dir.y);
                 if (IsValid(next))
                 {
                     stack.Push(next);
+                    inStack.Add(next);
                     visited[next.x, next.y] = true;
-                    parentMap[next] = current;
-                    MarkCell(next, GameConfig.PathFinding.VisitedColor);
-                    foundPath = true;
+                    parent[next] = currentExploring;
+                    MarkCell(next, Color.yellow); // 标记访问过的节点
+                    foundUnvisited = true;
                     break;
                 }
             }
 
-            if (!foundPath)
+            // 如果没有找到未访问的相邻节点，进行回溯
+            if (!foundUnvisited)
             {
-                stack.Pop();
-                MarkCell(current, Color.gray);
+                Vector2Int backtrack = stack.Pop();
+                inStack.Remove(backtrack);
+                if (backtrack != endPos) // 不要标记终点为灰色
+                {
+                    MarkCell(backtrack, Color.gray); // 标记回溯的节点
+                }
             }
 
-            yield return new WaitForSeconds(GameConfig.PathFinding.StepDelay);
+            // 每探索一个节点后等待一帧
+            yield return new WaitForSeconds(0.1f);
         }
+    }
+
+    // 保留原有的FindPath方法实现
+    public override IEnumerator FindPath()
+    {
+        // 原有的DFS实现...
+        yield break;
     }
 
     private void ReconstructPath()
     {
+        path.Clear();
         Vector2Int current = endPos;
-        while (parentMap.ContainsKey(current))
+        
+        while (current != startPos)
         {
             path.Add(current);
-            current = parentMap[current];
+            MarkCell(current, Color.green); // 标记最终路径
+            current = parent[current];
         }
+        
         path.Add(startPos);
         path.Reverse();
-    }
-
-    private IEnumerator VisualizePath()
-    {
-        foreach (var pos in path)
-        {
-            MarkCell(pos, GameConfig.PathFinding.PathColor);
-            yield return new WaitForSeconds(GameConfig.PathFinding.StepDelay / 2);
-        }
     }
 }

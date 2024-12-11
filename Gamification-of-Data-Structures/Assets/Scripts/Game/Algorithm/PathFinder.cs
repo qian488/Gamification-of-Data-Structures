@@ -65,4 +65,9 @@ public abstract class PathFinder
         // 更新步数
         GameUIManager.GetInstance().IncrementSteps();
     }
+
+    // 添加新方法
+    public abstract IEnumerator<YieldInstruction> FindPathStepByStep();
+    public abstract Vector2Int GetCurrentExploringPosition();
+    public abstract int GetExploredCount();
 } 

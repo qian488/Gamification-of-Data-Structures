@@ -350,8 +350,30 @@ public class MazeManager : BaseManager<MazeManager>
         }
     }
 
+    public void ResetAll()
+    {
+        // 停止所有正在运行的协程
+        MonoManager.GetInstance().StopAllCoroutines();
+        
+        // 重置路径显示
+        ResetPathVisuals();
+        
+        // 重置玩家位置
+        InitializePlayer();
+        
+        // 重置UI显示
+        var visualizer = GameUIManager.GetInstance().GetAlgorithmVisualizer();
+        if (visualizer != null)
+        {
+            visualizer.UpdateStatus("已重置");
+        }
+    }
+
     public void StartPathFinding(bool useDFS = true)
     {
+        // 先停止所有正在运行的协程
+        MonoManager.GetInstance().StopAllCoroutines();
+
         // 获取玩家当前位置
         Vector3 playerPos = PlayerManager.GetInstance().GetPlayerPosition();
         float centerX, centerZ;
@@ -380,7 +402,7 @@ public class MazeManager : BaseManager<MazeManager>
 
     private IEnumerator DelayedPathFinding(bool useDFS)
     {
-        // 等待重置动���完成（动画时间 + 额外缓冲）
+        // 等待重置动画完成（动画时间 + 额外缓冲）
         yield return new WaitForSeconds(1.5f);
         
         // 开始寻路
@@ -405,7 +427,7 @@ public class MazeManager : BaseManager<MazeManager>
             visualizer.UpdateStatus("开始广度优先搜索...");
         }
 
-        // 开始寻路并在完成后移动玩家
+        // 直接开始寻路和移动过程
         MonoManager.GetInstance().StartCoroutine(PathFindingAndMove());
     }
 
@@ -414,16 +436,78 @@ public class MazeManager : BaseManager<MazeManager>
         var visualizer = GameUIManager.GetInstance().GetAlgorithmVisualizer();
         visualizer.UpdateStatus("正在搜索路径...");
         
-        // 等待寻路完成
-        yield return currentPathFinder.FindPath();
-        
-        // 获取路径
+        // 获取当前位置的网格坐标
+        float centerX, centerZ;
+        GetMazeCenter(out centerX, out centerZ);
+        Vector3 currentPos = PlayerManager.GetInstance().GetPlayerPosition();
+        Vector2Int currentGrid = new Vector2Int(
+            Mathf.RoundToInt((currentPos.x - centerX) / cellSize),
+            Mathf.RoundToInt((currentPos.z - centerZ) / cellSize)
+        );
+
+        // 设置移动参数
+        float moveSpeed = 5f;
+        float rotateSpeed = 10f;
+        float arrivalDistance = 0.1f;
+
+        // 开始寻路过程
+        var pathFinder = currentPathFinder.FindPathStepByStep();
+        while (pathFinder.MoveNext())
+        {
+            // 等待寻路器的每一步
+            yield return pathFinder.Current;
+
+            // 获取当前探索到的位置
+            Vector2Int explorePos = currentPathFinder.GetCurrentExploringPosition();
+            if (explorePos != currentGrid) // 如果探索位置不是当前位置
+            {
+                // 注释掉穿墙检查
+                // if (CanMoveBetween(currentGrid, explorePos))
+                {
+                    // 将网格坐标转换为世界坐标
+                    Vector3 targetPos = new Vector3(
+                        centerX + explorePos.x * cellSize,
+                        1.5f,
+                        centerZ + explorePos.y * cellSize
+                    );
+
+                    // 移动到探索位置
+                    while (Vector3.Distance(PlayerManager.GetInstance().GetPlayerPosition(), targetPos) > arrivalDistance)
+                    {
+                        Vector3 direction = (targetPos - PlayerManager.GetInstance().GetPlayerPosition()).normalized;
+                        
+                        // 旋转
+                        Quaternion targetRotation = Quaternion.LookRotation(direction);
+                        PlayerManager.GetInstance().SetPlayerRotation(
+                            Quaternion.Lerp(PlayerManager.GetInstance().GetPlayerRotation(), 
+                                          targetRotation, 
+                                          rotateSpeed * Time.deltaTime)
+                        );
+                        
+                        // 移动
+                        Vector3 newPos = Vector3.MoveTowards(
+                            PlayerManager.GetInstance().GetPlayerPosition(), 
+                            targetPos, 
+                            moveSpeed * Time.deltaTime
+                        );
+                        PlayerManager.GetInstance().SetPlayerPosition(newPos);
+                        
+                        yield return null;
+                    }
+
+                    currentGrid = explorePos;
+                }
+            }
+
+            // 更新UI显示
+            visualizer.UpdateStatus($"已探索节点数：{currentPathFinder.GetExploredCount()}");
+        }
+
+        // 寻路完成后的处理
         var path = currentPathFinder.GetPath();
         if (path != null && path.Count > 0)
         {
             visualizer.UpdateStatus($"找到路径！步数：{path.Count}");
-            // 开始沿路径移动玩家
-            StartPlayerMovement(path);
         }
         else
         {
@@ -431,59 +515,67 @@ public class MazeManager : BaseManager<MazeManager>
         }
     }
 
-    private void StartPlayerMovement(List<Vector2Int> path)
+    // 修改辅助方法来检查两个位置之间是否可以移动
+    private bool CanMoveBetween(Vector2Int from, Vector2Int to)
     {
-        // 将网格坐标转换为世界坐标
-        List<Vector3> worldPath = new List<Vector3>();
-        float centerX, centerZ;
-        GetMazeCenter(out centerX, out centerZ);
-        
-        foreach (var point in path)
-        {
-            Vector3 worldPos = new Vector3(
-                centerX + point.x * cellSize,
-                1.5f,  // 玩家高度
-                centerZ + point.y * cellSize
-            );
-            worldPath.Add(worldPos);
-        }
+        // 检查起点和终点是否都是有效的空地
+        if (maze[from.x, from.y].IsWall || maze[to.x, to.y].IsWall)
+            return false;
 
-        // 开始移动玩家
-        MonoManager.GetInstance().StartCoroutine(MovePlayerAlongPath(worldPath));
+        // 检查是否是同一个位置
+        if (from == to)
+            return true;
+
+        // 尝试通过中间点连接
+        Vector2Int midPoint1 = new Vector2Int(from.x, to.y); // 横向移动后竖向移动
+        Vector2Int midPoint2 = new Vector2Int(to.x, from.y); // 竖向移动后横向移动
+
+        // 检查两条可能的路径
+        bool canUsePath1 = !maze[midPoint1.x, midPoint1.y].IsWall && 
+                          CheckStraightPath(from, midPoint1) && 
+                          CheckStraightPath(midPoint1, to);
+
+        bool canUsePath2 = !maze[midPoint2.x, midPoint2.y].IsWall && 
+                          CheckStraightPath(from, midPoint2) && 
+                          CheckStraightPath(midPoint2, to);
+
+        return canUsePath1 || canUsePath2;
     }
 
-    private IEnumerator MovePlayerAlongPath(List<Vector3> worldPath)
+    // 添加辅助方法检查直线路径
+    private bool CheckStraightPath(Vector2Int from, Vector2Int to)
     {
-        float moveSpeed = 5f;  // 移动速度
-        float rotateSpeed = 10f;  // 旋转速度
-        float arrivalDistance = 0.1f;  // 到达判定距离
+        // 如果两点相同，返回true
+        if (from == to) return true;
 
-        foreach (Vector3 targetPos in worldPath)
+        // 确保两点在同一直线上
+        if (from.x != to.x && from.y != to.y)
+            return false;
+
+        if (from.x == to.x)
         {
-            // 获取玩家当前位置
-            Vector3 currentPos = PlayerManager.GetInstance().GetPlayerPosition();
-            
-            while (Vector3.Distance(currentPos, targetPos) > arrivalDistance)
+            // 在同一列上，检查中间是否有墙
+            int minY = Mathf.Min(from.y, to.y);
+            int maxY = Mathf.Max(from.y, to.y);
+            for (int y = minY; y <= maxY; y++)
             {
-                // 计算方向
-                Vector3 direction = (targetPos - currentPos).normalized;
-                
-                // 计算旋转
-                Quaternion targetRotation = Quaternion.LookRotation(direction);
-                PlayerManager.GetInstance().SetPlayerRotation(
-                    Quaternion.Lerp(PlayerManager.GetInstance().GetPlayerRotation(), 
-                                  targetRotation, 
-                                  rotateSpeed * Time.deltaTime)
-                );
-                
-                // 移动
-                Vector3 newPos = Vector3.MoveTowards(currentPos, targetPos, moveSpeed * Time.deltaTime);
-                PlayerManager.GetInstance().SetPlayerPosition(newPos);
-                
-                currentPos = newPos;
-                yield return null;
+                if (maze[from.x, y].IsWall)
+                    return false;
             }
         }
+        else
+        {
+            // 在同一行上，检查中间是否有墙
+            int minX = Mathf.Min(from.x, to.x);
+            int maxX = Mathf.Max(from.x, to.x);
+            for (int x = minX; x <= maxX; x++)
+            {
+                if (maze[x, from.y].IsWall)
+                    return false;
+            }
+        }
+
+        return true;
     }
 
     public void ResetPathVisuals()

@@ -65,12 +65,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.R))  // 按R重置位置
         {
-            // 重置玩家位置
-            PlayerManager.GetInstance().ResetPlayer();
-            // 重置寻路显示
-            MazeManager.GetInstance().ResetPathVisuals();
-            // 重置算法可视化
-            GameUIManager.GetInstance().ResetVisualizer();
+            MazeManager.GetInstance().ResetAll();
         }
         
         // 检测当前位置的地板
