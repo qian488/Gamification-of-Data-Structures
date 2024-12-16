@@ -20,6 +20,7 @@ public class PlayerManager : BaseManager<PlayerManager>
     private CameraFollow cameraFollow;
     /// <summary>玩家初始位置</summary>
     private Vector3 startPosition;
+    private float moveSpeed = 10f;  // 基础移动速度
 
     /// <summary>
     /// 初始化玩家管理器
@@ -218,5 +219,15 @@ public class PlayerManager : BaseManager<PlayerManager>
         {
             player.transform.rotation = rotation;
         }
+    }
+
+    public float GetMoveSpeed()
+    {
+        return moveSpeed;
+    }
+
+    public void SetMoveSpeed(float speed)
+    {
+        moveSpeed = speed;
     }
 } 

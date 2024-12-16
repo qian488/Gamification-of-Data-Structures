@@ -3,11 +3,15 @@
   "WorkspaceRootPath": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\assets\\scripts\\game\\player\\playermanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|d:\\projects\\vscodeprojects\\datastructfinal\\gamification-of-data-structures\\assets\\scripts\\game\\maze\\mazegenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\game\\maze\\mazegenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|d:\\projects\\vscodeprojects\\datastructfinal\\gamification-of-data-structures\\assets\\scripts\\game\\player\\playermanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\game\\player\\playermanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|d:\\projects\\vscodeprojects\\datastructfinal\\gamification-of-data-structures\\assets\\scripts\\game\\gameinit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\assets\\scripts\\game\\gameinit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\game\\gameinit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -78,7 +82,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -86,7 +90,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
+              "Title": "MazeGenerator.cs",
+              "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Maze\\MazeGenerator.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Maze\\MazeGenerator.cs",
+              "ToolTip": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Maze\\MazeGenerator.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Game\\Maze\\MazeGenerator.cs",
+              "ViewState": "AgIAAMQAAAAAAAAAAAAxwNEAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-16T09:29:56.153Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "PlayerController.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Player\\PlayerController.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Player\\PlayerController.cs",
@@ -98,7 +115,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "BFSPathFinder.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Algorithm\\BFSPathFinder.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Algorithm\\BFSPathFinder.cs",
@@ -110,20 +127,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "PlayerManager.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Player\\PlayerManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Player\\PlayerManager.cs",
               "ToolTip": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Player\\PlayerManager.cs",
               "RelativeToolTip": "Assets\\Scripts\\Game\\Player\\PlayerManager.cs",
-              "ViewState": "AgIAAEEAAAAAAAAAAIAxwE4AAAA3AAAAAAAAAA==",
+              "ViewState": "AgIAAEEAAAAAAAAAAIAxwE4AAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-10T07:12:41.835Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "MazeGameUI.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\UI\\MazeGameUI.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\UI\\MazeGameUI.cs",
@@ -135,7 +152,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "GameUIManager.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\UI\\GameUIManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\UI\\GameUIManager.cs",
@@ -147,7 +164,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "GameInit.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\GameInit.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\GameInit.cs",
@@ -155,12 +172,11 @@
               "RelativeToolTip": "Assets\\Scripts\\Game\\GameInit.cs",
               "ViewState": "AgIAADQAAAAAAAAAAMBcwD8AAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-10T07:03:12.284Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-10T07:03:12.284Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "MazeManager.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Maze\\MazeManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Maze\\MazeManager.cs",
@@ -172,7 +188,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "ResourcesManager.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\ProjectBase\\Res\\ResourcesManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\ProjectBase\\Res\\ResourcesManager.cs",
@@ -184,7 +200,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 14,
               "Title": "LevelConfigManager.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Sokoban\\Managers\\LevelConfigManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Sokoban\\Managers\\LevelConfigManager.cs",
@@ -196,7 +212,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 15,
               "Title": "TileManager.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Sokoban\\Managers\\TileManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Sokoban\\Managers\\TileManager.cs",
@@ -208,7 +224,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 16,
               "Title": "Box.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Sokoban\\Entities\\Box.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Sokoban\\Entities\\Box.cs",
@@ -220,7 +236,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "UIManager.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\ProjectBase\\UI\\UIManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\ProjectBase\\UI\\UIManager.cs",
@@ -232,7 +248,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "LevelConfigData.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Sokoban\\Core\\LevelConfigData.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Sokoban\\Core\\LevelConfigData.cs",
@@ -244,7 +260,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "LevelData.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Sokoban\\Core\\LevelData.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Sokoban\\Core\\LevelData.cs",
@@ -255,7 +271,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "AudioHandler.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Sokoban\\Core\\AudioHandler.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Sokoban\\Core\\AudioHandler.cs",
@@ -267,7 +283,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "LevelManager.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Sokoban\\Core\\LevelManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Sokoban\\Core\\LevelManager.cs",
@@ -279,7 +295,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 17,
               "Title": "GameManager.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Sokoban\\Core\\GameManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Sokoban\\Core\\GameManager.cs",

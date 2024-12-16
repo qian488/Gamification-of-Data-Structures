@@ -68,6 +68,30 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        // 处理Alt键控制鼠标显示
+        if (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyDown(KeyCode.RightAlt))
+        {
+            // Alt按下时显示鼠标
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            canMove = false;  // 显示鼠标时暂停移动
+            
+            // 启用UI交互
+            Debug.Log("Triggering EnableUIInteraction"); // 添加调试日志
+            EventCenter.GetInstance().EventTrigger("EnableUIInteraction");
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftAlt) || Input.GetKeyUp(KeyCode.RightAlt))
+        {
+            // Alt松开时隐藏鼠标
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            canMove = true;  // 隐藏鼠标时恢复移动
+            
+            // 禁用UI交互
+            Debug.Log("Triggering DisableUIInteraction"); // 添加调试日志
+            EventCenter.GetInstance().EventTrigger("DisableUIInteraction");
+        }
+
         // 检测视角切换输入
         if (Input.GetKeyDown(KeyCode.V))
         {
@@ -186,7 +210,7 @@ public class PlayerController : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(transform.position, Vector3.down, out hit, 2f))
         {
-            // 获取击中点的世界坐标
+            // 获取击中��的世界坐标
             Vector3 hitPoint = hit.point;
             
             // 获取迷宫中心坐标

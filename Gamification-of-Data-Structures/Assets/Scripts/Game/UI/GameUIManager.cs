@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEngine.UI;
 
 /// <summary>
 /// 游戏UI管理器类
@@ -29,21 +30,63 @@ public class GameUIManager : BaseManager<GameUIManager>
         Debug.Log("GameUIManager Init start");
         
         // 使用UIManager显示迷宫游戏UI
-        UIManager.GetInstance().ShowPanel<MazeGameUI>("MazeGameUI", E_UI_Layer.Mid, (panel) =>
+        UIManager.GetInstance().ShowPanel<MazeGameUI>("MazeGameUI", E_UI_Layer.Top, (panel) =>
         {
             mazeGameUI = panel;
+            SetPanelTransparency(panel.gameObject, 0f);
             Debug.Log("MazeGameUI loaded successfully");
         });
 
         // 使用UIManager显示算法可视化UI
-        UIManager.GetInstance().ShowPanel<AlgorithmVisualizerUI>("AlgorithmVisualizerUI", E_UI_Layer.Top, (panel) =>
+        UIManager.GetInstance().ShowPanel<AlgorithmVisualizerUI>("AlgorithmVisualizerUI", E_UI_Layer.Mid, (panel) =>
         {
             algorithmVisualizer = panel;
+            SetPanelTransparency(panel.gameObject, 0f);
             Debug.Log("AlgorithmVisualizerUI loaded successfully");
         });
 
         // 注册游戏完成事件
         EventCenter.GetInstance().AddEventListener("GameFinish", OnGameFinish);
+    }
+
+    /// <summary>
+    /// 递归设置面板及其子物体的透明度
+    /// </summary>
+    private void SetPanelTransparency(GameObject panel, float alpha)
+    {
+        // 设置当前物体的Image组件透明度
+        Image image = panel.GetComponent<Image>();
+        if (image != null)
+        {
+            Color color = image.color;
+            color.a = alpha;
+            image.color = color;
+        }
+/*
+        // 递归设置所有子物体的透明度
+        foreach (Transform child in panel.transform)
+        {
+            SetPanelTransparency(child.gameObject, alpha);
+        }
+*/
+    }
+
+    /// <summary>
+    /// 设置指定面板的透明度
+    /// </summary>
+    public void SetUITransparency(string panelName, float alpha)
+    {
+        switch (panelName)
+        {
+            case "MazeGameUI":
+                if (mazeGameUI != null)
+                    SetPanelTransparency(mazeGameUI.gameObject, alpha);
+                break;
+            case "AlgorithmVisualizerUI":
+                if (algorithmVisualizer != null)
+                    SetPanelTransparency(algorithmVisualizer.gameObject, alpha);
+                break;
+        }
     }
 
     /// <summary>

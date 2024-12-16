@@ -60,6 +60,10 @@ public class BFSPathFinder : PathFinder
         exploredCount = 0;
         movementPath.Clear();
         
+        // 获取玩家基础移动速度并翻倍
+        float baseSpeed = PlayerManager.GetInstance().GetMoveSpeed();
+        PlayerManager.GetInstance().SetMoveSpeed(baseSpeed * 2);
+        
         queue.Enqueue(startPos);
         visited[startPos.x, startPos.y] = true;
         MarkCell(startPos, Color.yellow);
@@ -102,6 +106,9 @@ public class BFSPathFinder : PathFinder
 
             yield return new WaitForSeconds(0.05f);
         }
+
+        // 搜索结束后恢复原速度
+        PlayerManager.GetInstance().SetMoveSpeed(baseSpeed);
     }
 
     private void GenerateMovementPath(Vector2Int from, Vector2Int to)

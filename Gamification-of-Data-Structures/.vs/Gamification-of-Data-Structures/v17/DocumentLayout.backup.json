@@ -3,16 +3,16 @@
   "WorkspaceRootPath": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\assets\\scripts\\game\\player\\playermanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\game\\player\\playermanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|d:\\projects\\vscodeprojects\\datastructfinal\\gamification-of-data-structures\\assets\\scripts\\game\\gameinit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\game\\gameinit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\assets\\scripts\\game\\player\\playercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\game\\player\\playercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\assets\\scripts\\game\\player\\playermanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\game\\player\\playermanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\assets\\scripts\\game\\maze\\mazemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -78,7 +78,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -86,7 +86,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "PlayerController.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Player\\PlayerController.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Player\\PlayerController.cs",
@@ -110,15 +110,16 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "PlayerManager.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Player\\PlayerManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Player\\PlayerManager.cs",
               "ToolTip": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Player\\PlayerManager.cs",
               "RelativeToolTip": "Assets\\Scripts\\Game\\Player\\PlayerManager.cs",
-              "ViewState": "AgIAADcAAAAAAAAAAAApwD8AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAEEAAAAAAAAAAIAxwE4AAAA3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-10T07:12:41.835Z"
+              "WhenOpened": "2024-12-10T07:12:41.835Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -146,13 +147,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "GameInit.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\GameInit.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\GameInit.cs",
               "ToolTip": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\GameInit.cs",
               "RelativeToolTip": "Assets\\Scripts\\Game\\GameInit.cs",
-              "ViewState": "AgIAACEAAAAAAAAAAAAAACcAAAAYAAAAAAAAAA==",
+              "ViewState": "AgIAADQAAAAAAAAAAMBcwD8AAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-10T07:03:12.284Z",
               "EditorCaption": ""

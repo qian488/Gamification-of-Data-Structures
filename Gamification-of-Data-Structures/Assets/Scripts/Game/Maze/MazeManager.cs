@@ -190,7 +190,7 @@ public class MazeManager : BaseManager<MazeManager>
         }
         else
         {
-            yield return CreateWallsOnly();
+            yield return CreateWalls();
         }
         
         // 创建起点和终点的光圈效果
@@ -214,127 +214,55 @@ public class MazeManager : BaseManager<MazeManager>
         float centerX = -mazeWidth * cellSize / 2f;
         float centerZ = -mazeHeight * cellSize / 2f;
 
-        if (mazeContainer == null)
-        {
-            Debug.LogError("MazeContainer is null when creating visuals");
-            yield break;
-        }
-
-        // 先创建所有地板
+        // 创建所有地板（不需要判断是否是墙）
         for (int x = 0; x < mazeWidth; x++)
         {
             for (int y = 0; y < mazeHeight; y++)
             {
-                if (!maze[x, y].IsWall)
+                int currentX = x;
+                int currentY = y;
+                Vector3 position = new Vector3(centerX + x * cellSize, 0, centerZ + y * cellSize);
+                
+                ResourcesManager.GetInstance().LoadAsync<GameObject>("Prefabs/Floor", (cell) =>
                 {
-                    int currentX = x;
-                    int currentY = y;
-                    Vector3 position = new Vector3(centerX + x * cellSize, 0, centerZ + y * cellSize);
-                    
-                    ResourcesManager.GetInstance().LoadAsync<GameObject>("Prefabs/Floor", (cell) =>
+                    if (cell != null && currentX < mazeWidth && currentY < mazeHeight)
                     {
-                        if (cell != null && currentX < mazeWidth && currentY < mazeHeight)
+                        cell.transform.SetParent(mazeContainer.transform);
+                        cell.transform.position = position;
+                        cell.transform.rotation = Quaternion.identity;
+                        cell.transform.localScale = new Vector3(cellSize, 0.1f, cellSize);
+                        PrefabChecker.CheckAndAddMazeCellComponents(cell, false);
+                        
+                        var renderer = cell.GetComponent<MeshRenderer>();
+                        if (renderer != null)
                         {
-                            cell.transform.SetParent(mazeContainer.transform);
-                            cell.transform.position = position;
-                            cell.transform.rotation = Quaternion.identity;
-                            cell.transform.localScale = new Vector3(cellSize, 0.1f, cellSize);
-                            PrefabChecker.CheckAndAddMazeCellComponents(cell, false);
-                            
-                            // 设置地板材质
-                            var renderer = cell.GetComponent<MeshRenderer>();
-                            if (renderer != null)
+                            ResourcesManager.GetInstance().LoadAsync<Material>("Materials/FloorMaterial", (material) =>
                             {
-                                // 加载预制材质
-                                ResourcesManager.GetInstance().LoadAsync<Material>("Materials/FloorMaterial", (material) =>
+                                if (material != null)
                                 {
-                                    if (material != null)
-                                    {
-                                        Material instanceMaterial = new Material(material);
-                                        renderer.material = instanceMaterial;
-                                    }
-                                });
-                            }
-                            
-                            maze[currentX, currentY].CellObject = cell;
-                        }
-                    }, true);
-                }
-            }
-            yield return null;
-        }
-
-        // 再创建墙壁
-        for (int x = 0; x < mazeWidth; x++)
-        {
-            for (int y = 0; y < mazeHeight; y++)
-            {
-                if (maze[x, y].IsWall)
-                {
-                    int currentX = x;
-                    int currentY = y;
-                    Vector3 position = new Vector3(
-                        centerX + x * cellSize,
-                        wallHeight / 2f,
-                        centerZ + y * cellSize
-                    );
-
-                    ResourcesManager.GetInstance().LoadAsync<GameObject>("Prefabs/Wall", (cell) =>
-                    {
-                        if (cell != null && currentX < mazeWidth && currentY < mazeHeight)
-                        {
-                            cell.transform.SetParent(mazeContainer.transform);
-                            cell.transform.position = position;
-                            cell.transform.rotation = Quaternion.identity;
-
-                            float height = (currentX == 0 || currentX == mazeWidth - 1 || 
-                                         currentY == 0 || currentY == mazeHeight - 1) 
-                                ? boundaryHeight 
-                                : wallHeight;
-
-                            cell.transform.localScale = new Vector3(
-                                cellSize * 1.01f,
-                                height,
-                                cellSize * 1.01f
-                            );
-                            
-                            // 设置墙体颜色
-                            var renderer = cell.GetComponent<MeshRenderer>();
-                            if (renderer != null)
-                            {
-                                // 加载预制材质
-                                Material wallMaterial = Resources.Load<Material>("Materials/WallMaterial");
-                                if (wallMaterial != null)
-                                {
-                                    // 创建材质实例
-                                    Material instanceMaterial = new Material(wallMaterial);
-                                    // 根据是否是边界墙设置不同颜色
-                                    Color wallColor = (currentX == 0 || currentX == mazeWidth - 1 || 
-                                                    currentY == 0 || currentY == mazeHeight - 1)
-                                        ? new Color(0.2f, 0.2f, 0.6f)  // 深蓝色
-                                        : new Color(0.4f, 0.4f, 0.9f); // 浅蓝色
-                                    instanceMaterial.color = wallColor;
+                                    Material instanceMaterial = new Material(material);
                                     renderer.material = instanceMaterial;
                                 }
-                            }
-                            
-                            PrefabChecker.CheckAndAddMazeCellComponents(cell, true);
-                            maze[currentX, currentY].CellObject = cell;
+                            });
                         }
-                    }, true);
-                }
+                        
+                        maze[currentX, currentY].CellObject = cell;
+                    }
+                }, true);
             }
             yield return null;
         }
+
+        // 创建墙壁
+        yield return CreateWalls();
     }
 
-    // 新增方法：只创建墙体
-    private IEnumerator CreateWallsOnly()
+    // 新增创建墙壁的独立方法
+    private IEnumerator CreateWalls()
     {
         float centerX = -mazeWidth * cellSize / 2f;
         float centerZ = -mazeHeight * cellSize / 2f;
 
-        // 创建墙壁
         for (int x = 0; x < mazeWidth; x++)
         {
             for (int y = 0; y < mazeHeight; y++)
@@ -368,17 +296,13 @@ public class MazeManager : BaseManager<MazeManager>
                                 cellSize * 1.01f
                             );
                             
-                            // 设置墙体颜色
                             var renderer = cell.GetComponent<MeshRenderer>();
                             if (renderer != null)
                             {
-                                // 加载预制材质
                                 Material wallMaterial = Resources.Load<Material>("Materials/WallMaterial");
                                 if (wallMaterial != null)
                                 {
-                                    // 创建材质实例
                                     Material instanceMaterial = new Material(wallMaterial);
-                                    // 根据是否是边界墙设置不同颜色
                                     Color wallColor = (currentX == 0 || currentX == mazeWidth - 1 || 
                                                     currentY == 0 || currentY == mazeHeight - 1)
                                         ? new Color(0.2f, 0.2f, 0.6f)  // 深蓝色
