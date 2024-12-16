@@ -118,6 +118,20 @@ public class PlayerController : MonoBehaviour
         
         // 检测当前位置的地板
         CheckAndLightFloor();
+
+        // 检查是否到达终点
+        CheckGameFinish();
+
+        // 检测 ESC 键退出游戏
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            // 显示鼠标
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            canMove = false;
+            // 显示确认对话框
+            GameUIManager.GetInstance().ShowExitConfirmPanel();
+        }
     }
 
     private void SwitchView()
@@ -210,7 +224,7 @@ public class PlayerController : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(transform.position, Vector3.down, out hit, 2f))
         {
-            // 获取击中��的世界坐标
+            // 获取击中的世界坐标
             Vector3 hitPoint = hit.point;
             
             // 获取迷宫中心坐标
@@ -224,5 +238,30 @@ public class PlayerController : MonoBehaviour
             // 设置地板发光
             MazeManager.GetInstance().LightFloor(x, z);
         }
+    }
+
+    private void CheckGameFinish(){
+        Vector3 playerPos = transform.position;
+        float centerX, centerZ;
+        MazeManager.GetInstance().GetMazeCenter(out centerX, out centerZ);
+        
+        int playerGridX = Mathf.RoundToInt((playerPos.x - centerX) / MazeManager.GetInstance().CellSize);
+        int playerGridZ = Mathf.RoundToInt((playerPos.z - centerZ) / MazeManager.GetInstance().CellSize);
+        
+        if (playerGridX == MazeManager.GetInstance().MazeWidth - 2 && 
+            playerGridZ == MazeManager.GetInstance().MazeHeight - 2)
+        {
+            EventCenter.GetInstance().EventTrigger(MazeManager.EVENT_MAZE_COMPLETED);
+        }
+    }
+
+    public void EnableControl()
+    {
+        canMove = true;
+    }
+
+    public void DisableControl()
+    {
+        canMove = false;
     }
 } 

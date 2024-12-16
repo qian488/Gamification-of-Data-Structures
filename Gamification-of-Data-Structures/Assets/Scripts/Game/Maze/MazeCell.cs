@@ -26,6 +26,10 @@ public class MazeCell
     public bool IsEnd { get; set; }
     /// <summary>对应的Unity游戏对象</summary>
     public GameObject CellObject { get; set; }
+    /// <summary>是否是路径</summary>
+    public bool IsPath { get; set; }
+    /// <summary>高亮颜色</summary>
+    public Color HighlightColor { get; set; }
 
     /// <summary>
     /// 创建新的迷宫单元格
@@ -41,5 +45,26 @@ public class MazeCell
         IsLit = false;
         IsEnd = false;
         CellObject = null;
+        IsPath = false;
+        HighlightColor = Color.white;
     }
+
+    /// <summary>
+    /// 重置单元格状态
+    /// </summary>
+    public void Reset()
+    {
+        IsWall = true;
+        IsVisited = false;
+        IsPath = false;
+        HighlightColor = Color.white;
+    }
+}
+
+public enum FloorMaterialType
+{
+    Default,        // 默认地板材质
+    PathFloor,      // 寻路路径材质
+    HighlightFloor, // 高亮材质
+    PlayerMaterial  // 玩家行走材质
 } 

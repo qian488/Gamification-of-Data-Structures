@@ -60,6 +60,7 @@
     <Analyzer Include="D:\Program Files\UnityVersion\2022.3.40f1c1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Game\Maze\MazeGenerator.Prim.cs" />
     <Compile Include="Assets\Scripts\ProjectBase\Music\MusicManager.cs" />
     <Compile Include="Assets\Scripts\ProjectBase\Input\InputManager.cs" />
     <Compile Include="Assets\Scripts\Game\UI\MazeGameUI.cs" />
@@ -68,12 +69,15 @@
     <Compile Include="Assets\Scripts\Game\Maze\MazeCell.cs" />
     <Compile Include="Assets\Scripts\ProjectBase\Pool\PoolData.cs" />
     <Compile Include="Assets\Scripts\Game\Player\PlayerManager.cs" />
+    <Compile Include="Assets\Scripts\Game\Maze\MazeGenerator.RecursiveDivision.cs" />
     <Compile Include="Assets\Scripts\Game\Utils\GameDebugger.cs" />
     <Compile Include="Assets\Scripts\Game\UI\AlgorithmVisualizerUI.cs" />
+    <Compile Include="Assets\Scripts\Game\Maze\MazeGenerator.Kruskal.cs" />
     <Compile Include="Assets\Scripts\ProjectBase\Pool\PoolManager.cs" />
     <Compile Include="Assets\Scripts\Game\Utils\UIPrefabChecker.cs" />
     <Compile Include="Assets\Scripts\ProjectBase\UI\UIFontManager.cs" />
     <Compile Include="Assets\Scripts\Game\GameInit.cs" />
+    <Compile Include="Assets\Scripts\Game\Maze\MazeGenerator.DFS.cs" />
     <Compile Include="Assets\Scripts\ProjectBase\Base\SingletonMono.cs" />
     <Compile Include="Assets\Scripts\ProjectBase\Base\SingletonAutoMono.cs" />
     <Compile Include="Assets\Scripts\Game\Utils\PrefabChecker.cs" />

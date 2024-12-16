@@ -32,7 +32,7 @@ public class MazeManager : BaseManager<MazeManager>
     private MazeGenerator mazeGenerator;
     /// <summary>迷宫容器对象</summary>
     private GameObject mazeContainer;
-    /// <summary>当前使用的寻路器</summary>
+    /// <summary>当前使用的寻���器</summary>
     private PathFinder currentPathFinder;
 
     private GameObject wallPrefab;
@@ -47,6 +47,13 @@ public class MazeManager : BaseManager<MazeManager>
 
     private bool isFirstGeneration = true;  // 添加标记
 
+    // 事件名称常量
+    public const string EVENT_MAZE_GENERATED = "MazeGenerated";
+    public const string EVENT_PATH_FOUND = "PathFound";
+    public const string EVENT_MAZE_RESET = "MazeReset";
+    public const string EVENT_CELL_VISITED = "CellVisited";
+    public const string EVENT_MAZE_COMPLETED = "MazeCompleted";  // 添加新事件常量
+
     /// <summary>
     /// 初始化迷宫管理器
     /// 加载必要的资源并设置初始状态
@@ -60,7 +67,7 @@ public class MazeManager : BaseManager<MazeManager>
         if (existingWall != null) ResourcesManager.GetInstance().Recycle("Prefabs/Wall", existingWall);
         if (existingFloor != null) ResourcesManager.GetInstance().Recycle("Prefabs/Floor", existingFloor);
 
-        // 直接使用Resources.Load加载预制体资源，而不是实例化
+        // 直接使���Resources.Load加载预制体资源，而不是实例化
         wallPrefab = Resources.Load<GameObject>("Prefabs/Wall");
         floorPrefab = Resources.Load<GameObject>("Prefabs/Floor");
         mazeGenerator = new MazeGenerator();
@@ -476,6 +483,12 @@ public class MazeManager : BaseManager<MazeManager>
 
             // 更新UI显示
             visualizer.UpdateStatus($"已探索节点数：{currentPathFinder.GetExploredCount()}");
+
+            // 在到达终点时触发事件
+            if (currentGrid.x == mazeWidth - 2 && currentGrid.y == mazeHeight - 2)
+            {
+                EventCenter.GetInstance().EventTrigger(EVENT_MAZE_COMPLETED);
+            }
         }
 
         // 寻路完成后的处理
@@ -483,6 +496,13 @@ public class MazeManager : BaseManager<MazeManager>
         if (path != null && path.Count > 0)
         {
             visualizer.UpdateStatus($"找到路径！步数：{path.Count}");
+            
+            // 检查最后一个位置是否是终点
+            var lastPos = path[path.Count - 1];
+            if (lastPos.x == mazeWidth - 2 && lastPos.y == mazeHeight - 2)
+            {
+                EventCenter.GetInstance().EventTrigger(EVENT_MAZE_COMPLETED);
+            }
         }
         else
         {
@@ -520,7 +540,7 @@ public class MazeManager : BaseManager<MazeManager>
     // 添加辅助方法检查直线路径
     private bool CheckStraightPath(Vector2Int from, Vector2Int to)
     {
-        // 如果两点相同，���回true
+        // 如果两点相同，回true
         if (from == to) return true;
 
         // 确保两点在同一直线上
@@ -616,13 +636,11 @@ public class MazeManager : BaseManager<MazeManager>
             var renderer = maze[x, z].CellObject.GetComponent<MeshRenderer>();
             if (renderer != null)
             {
-                Material glowMaterial = new Material(Shader.Find("Standard"));
-                glowMaterial.color = new Color(0.3f, 0.3f, 0.4f);
-                glowMaterial.SetFloat("_Glossiness", 0.5f);
-                glowMaterial.SetFloat("_Metallic", 0.2f);
-                glowMaterial.EnableKeyword("_EMISSION");
-                glowMaterial.SetColor("_EmissionColor", new Color(0.1f, 0.1f, 0.2f));
-                renderer.material = glowMaterial;
+                Material playerMaterial = Resources.Load<Material>("Materials/PlayerMaterial");
+                if (playerMaterial != null)
+                {
+                    renderer.material = new Material(playerMaterial);
+                }
             }
         }
     }
@@ -697,28 +715,5 @@ public class MazeManager : BaseManager<MazeManager>
         float centerX, centerZ;
         GetMazeCenter(out centerX, out centerZ);
         return new Vector3(centerX + x * cellSize, height, centerZ + y * cellSize);
-    }
-
-    private void SetupLighting()
-    {
-        // 找到场景中的Directional Light
-        Light directionalLight = GameObject.Find("Directional Light")?.GetComponent<Light>();
-        if (directionalLight != null)
-        {
-            // 设置光照强度
-            directionalLight.intensity = 1.5f;
-            
-            // 设置光照颜色（纯白色）
-            directionalLight.color = Color.white;
-            
-            // 设置阴影类型
-            directionalLight.shadows = LightShadows.Soft;
-            
-            // 设置阴影强度
-            directionalLight.shadowStrength = 0.7f;
-            
-            // 调整光源角度
-            directionalLight.transform.rotation = Quaternion.Euler(50f, 30f, 0f);
-        }
     }
 }

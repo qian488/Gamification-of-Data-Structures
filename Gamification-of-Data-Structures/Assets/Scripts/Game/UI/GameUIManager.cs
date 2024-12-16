@@ -47,6 +47,7 @@ public class GameUIManager : BaseManager<GameUIManager>
 
         // 注册游戏完成事件
         EventCenter.GetInstance().AddEventListener("GameFinish", OnGameFinish);
+
     }
 
     /// <summary>
@@ -121,5 +122,18 @@ public class GameUIManager : BaseManager<GameUIManager>
     public AlgorithmVisualizerUI GetAlgorithmVisualizer()
     {
         return algorithmVisualizer;
+    }
+
+    public MazeGameUI GetMazeGameUI()
+    {
+        return mazeGameUI;
+    }
+
+    public void ShowExitConfirmPanel()
+    {
+        if (mazeGameUI != null)
+        {
+            mazeGameUI.ShowExitConfirmPanel();
+        }
     }
 }

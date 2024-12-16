@@ -70,39 +70,33 @@ public abstract class PathFinder
     {
         if (maze[pos.x, pos.y].CellObject != null)
         {
-            var renderer = maze[pos.x, pos.y].CellObject.GetComponent<Renderer>();
+            var renderer = maze[pos.x, pos.y].CellObject.GetComponent<MeshRenderer>();
             if (renderer != null)
             {
-                // 根据颜色选择对应的材质
-                Material baseMaterial = null;
+                Material material = null;  // 初始化为 null
                 if (color == Color.yellow)
                 {
-                    baseMaterial = Resources.Load<Material>("Materials/VisitedMaterial");
+                    material = Resources.Load<Material>("Materials/HighlightFloor");
                 }
                 else if (color == Color.green)
                 {
-                    baseMaterial = Resources.Load<Material>("Materials/PathMaterial");
+                    material = Resources.Load<Material>("Materials/PathFloor");
                 }
                 else if (color == Color.gray)
                 {
-                    baseMaterial = Resources.Load<Material>("Materials/FloorMaterial");
-                    color = new Color(0.5f, 0.5f, 0.5f); // 使灰色更明显
+                    material = Resources.Load<Material>("Materials/DefaultFloor");
                 }
                 else
                 {
-                    baseMaterial = Resources.Load<Material>("Materials/FloorMaterial");
+                    material = Resources.Load<Material>("Materials/FloorMaterial");  // 默认情况
                 }
 
-                if (baseMaterial != null)
+                if (material != null)
                 {
-                    Material newMaterial = new Material(baseMaterial);
-                    // 保持材质的基本属性，只修改颜色
-                    newMaterial.color = color;
-                    renderer.material = newMaterial;
+                    renderer.material = new Material(material);
                 }
             }
         }
-        GameUIManager.GetInstance().IncrementSteps();
     }
 
     // 添加新方法
