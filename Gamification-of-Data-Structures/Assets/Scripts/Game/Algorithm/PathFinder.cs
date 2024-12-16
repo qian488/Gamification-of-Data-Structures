@@ -4,14 +4,16 @@ using System.Collections;
 
 /// <summary>
 /// 寻路算法基类
-/// 为不同的寻路算法提供基础框架和共享功能
+/// 为各种寻路算法提供基础框架
 /// </summary>
 /// <remarks>
 /// 主要功能：
-/// 1. 定义寻路算法的基本接口
-/// 2. 提供共享的辅助方法
-/// 3. 管理路径可视化
-/// 4. 处理迷宫单元格的标记
+/// 1. 定义寻路算法的通用接口
+/// 2. 提供基础的路径查找工具
+/// 3. 管理路径的可视化效果
+/// 4. 处理算法执行状态
+/// 5. 提供算法性能统计
+/// 6. 支持分步执行和动画展示
 /// </remarks>
 public abstract class PathFinder
 {
@@ -68,34 +70,64 @@ public abstract class PathFinder
 
     protected void MarkCell(Vector2Int pos, Color color)
     {
+        Debug.Log($"Attempting to mark cell at {pos} with color {color}");
+        
         if (maze[pos.x, pos.y].CellObject != null)
         {
-            var renderer = maze[pos.x, pos.y].CellObject.GetComponent<MeshRenderer>();
-            if (renderer != null)
+            Debug.Log($"Found cell object at {pos}");
+            Transform bodyTransform = maze[pos.x, pos.y].CellObject.transform.Find("body");
+            if (bodyTransform != null)
             {
-                Material material = null;  // 初始化为 null
-                if (color == Color.yellow)
+                Debug.Log($"Found body transform at {pos}");
+                var renderer = bodyTransform.GetComponent<MeshRenderer>();
+                if (renderer != null)
                 {
-                    material = Resources.Load<Material>("Materials/HighlightFloor");
-                }
-                else if (color == Color.green)
-                {
-                    material = Resources.Load<Material>("Materials/PathFloor");
-                }
-                else if (color == Color.gray)
-                {
-                    material = Resources.Load<Material>("Materials/DefaultFloor");
+                    Material material = null;
+                    string materialName = "";
+                    
+                    if (color == Color.yellow)
+                    {
+                        materialName = "Materials/HighlightFloor";
+                    }
+                    else if (color == Color.green)
+                    {
+                        materialName = "Materials/PathFloor";
+                    }
+                    else if (color == Color.gray)
+                    {
+                        materialName = "Materials/DefaultFloor";
+                    }
+                    else
+                    {
+                        materialName = "Materials/FloorMaterial";
+                    }
+
+                    Debug.Log($"Loading material: {materialName}");
+                    material = Resources.Load<Material>(materialName);
+
+                    if (material != null)
+                    {
+                        Debug.Log($"Successfully loaded material {material.name} for cell at {pos}");
+                        renderer.material = material;
+                    }
+                    else
+                    {
+                        Debug.LogError($"Failed to load material: {materialName}");
+                    }
                 }
                 else
                 {
-                    material = Resources.Load<Material>("Materials/FloorMaterial");  // 默认情况
-                }
-
-                if (material != null)
-                {
-                    renderer.material = new Material(material);
+                    Debug.LogError($"No MeshRenderer found on body at {pos}");
                 }
             }
+            else
+            {
+                Debug.LogError($"No 'body' child found on floor at {pos}");
+            }
+        }
+        else
+        {
+            Debug.LogError($"No cell object found at {pos}");
         }
     }
 

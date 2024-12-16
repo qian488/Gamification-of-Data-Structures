@@ -14,15 +14,16 @@ public enum ViewMode
 
 /// <summary>
 /// 玩家控制器类
-/// 负责处理玩家的输入、移动和交互
+/// 负责处理玩家的输入和移动控制
 /// </summary>
 /// <remarks>
 /// 主要功能：
 /// 1. 处理键盘和鼠标输入
-/// 2. 控制玩家移动和旋转
-/// 3. 管理视角切换
-/// 4. 处理碰撞检测
-/// 5. 与迷宫环境交互
+/// 2. 实现玩家移动和旋转
+/// 3. 管理玩家的物理碰撞
+/// 4. 处理视角切换
+/// 5. 控制玩家与环境的交互
+/// 6. 管理玩家状态（移动、禁用）
 /// </remarks>
 public class PlayerController : MonoBehaviour
 {
@@ -183,7 +184,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            // 俯视角模式：按住右键时旋转玩家
+            // 俯���角模式：按住右键时旋转玩家
             if (Input.GetMouseButton(1))  // 1 代表鼠标右键
             {
                 transform.Rotate(Vector3.up * mouseDelta.x * mouseSensitivity);

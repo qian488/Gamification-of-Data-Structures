@@ -4,15 +4,16 @@ using System.Collections.Generic;
 
 /// <summary>
 /// 迷宫管理器类
-/// 负责迷宫的创建、更新和交互管理
+/// 负责迷宫的生成、更新和交互管理
 /// </summary>
 /// <remarks>
 /// 主要功能：
-/// 1. 管理迷宫的生成和重置
-/// 2. 处理迷宫的可视化显示
-/// 3. 管理迷宫中的特效和光照
-/// 4. 协调玩家与迷宫的交互
-/// 5. 处理寻路算法的可视化
+/// 1. 控制迷宫的生成和重置
+/// 2. 管理迷宫的可视化显示
+/// 3. 处理迷宫与玩家的交互
+/// 4. 协调寻路算法的执行
+/// 5. 管理特效系统（起点终点标记、地板发光）
+/// 6. 处理迷宫状态的保存和加载
 /// </remarks>
 public class MazeManager : BaseManager<MazeManager>
 {
@@ -32,7 +33,7 @@ public class MazeManager : BaseManager<MazeManager>
     private MazeGenerator mazeGenerator;
     /// <summary>迷宫容器对象</summary>
     private GameObject mazeContainer;
-    /// <summary>当前使用的寻���器</summary>
+    /// <summary>当前使用的寻路器</summary>
     private PathFinder currentPathFinder;
 
     private GameObject wallPrefab;
@@ -67,7 +68,7 @@ public class MazeManager : BaseManager<MazeManager>
         if (existingWall != null) ResourcesManager.GetInstance().Recycle("Prefabs/Wall", existingWall);
         if (existingFloor != null) ResourcesManager.GetInstance().Recycle("Prefabs/Floor", existingFloor);
 
-        // 直接使���Resources.Load加载预制体资源，而不是实例化
+        // 直接使用Resources.Load加载预制体资源，而不是实例化
         wallPrefab = Resources.Load<GameObject>("Prefabs/Wall");
         floorPrefab = Resources.Load<GameObject>("Prefabs/Floor");
         mazeGenerator = new MazeGenerator();
@@ -313,7 +314,7 @@ public class MazeManager : BaseManager<MazeManager>
                                     Color wallColor = (currentX == 0 || currentX == mazeWidth - 1 || 
                                                     currentY == 0 || currentY == mazeHeight - 1)
                                         ? new Color(0.2f, 0.2f, 0.6f)  // 深蓝色
-                                        : new Color(0.4f, 0.4f, 0.9f); // 浅蓝色
+                                        : new Color(0.4f, 0.4f, 0.9f); // 浅蓝
                                     instanceMaterial.color = wallColor;
                                     renderer.material = instanceMaterial;
                                 }
@@ -497,7 +498,7 @@ public class MazeManager : BaseManager<MazeManager>
         {
             visualizer.UpdateStatus($"找到路径！步数：{path.Count}");
             
-            // 检查最后一个位置是否是终点
+            // 检查后一位置是否是终点
             var lastPos = path[path.Count - 1];
             if (lastPos.x == mazeWidth - 2 && lastPos.y == mazeHeight - 2)
             {
@@ -506,7 +507,7 @@ public class MazeManager : BaseManager<MazeManager>
         }
         else
         {
-            visualizer.UpdateStatus("未找到有效路径！");
+            visualizer.UpdateStatus("未找到有路径！");
         }
     }
 
@@ -543,7 +544,7 @@ public class MazeManager : BaseManager<MazeManager>
         // 如果两点相同，回true
         if (from == to) return true;
 
-        // 确保两点在同一直线上
+        // 确保两在同一直线上
         if (from.x != to.x && from.y != to.y)
             return false;
 
@@ -582,9 +583,26 @@ public class MazeManager : BaseManager<MazeManager>
                 if (!maze[x, y].IsWall && maze[x, y].CellObject != null)
                 {
                     // 如果地板已经发光，保持发光状态
-                    if (!maze[x, y].IsLit)
+                    //if (!maze[x, y].IsLit)
                     {
-                        maze[x, y].CellObject.GetComponent<Renderer>().material.color = Color.white;
+                        // 获取 body 子物体
+                        Transform bodyTransform = maze[x, y].CellObject.transform.Find("body");
+                        if (bodyTransform != null)
+                        {
+                            var renderer = bodyTransform.GetComponent<MeshRenderer>();
+                            if (renderer != null)
+                            {
+                                Material defaultMaterial = Resources.Load<Material>("Materials/FloorMaterial");
+                                if (defaultMaterial != null)
+                                {
+                                    renderer.material = defaultMaterial;
+                                }
+                                else
+                                {
+                                    Debug.LogError("Failed to load default floor material");
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -626,21 +644,38 @@ public class MazeManager : BaseManager<MazeManager>
 
     public void LightFloor(int x, int z)
     {
-        // 检查坐标是否有效且maze已初始化
-        if (maze == null || x < 0 || x >= mazeWidth || z < 0 || z >= mazeHeight) return;
+        if (maze == null || x < 0 || x >= mazeWidth || z < 0 || z >= mazeHeight)
+        {
+            Debug.LogError($"Invalid coordinates: ({x}, {z})");
+            return;
+        }
         
-        // 检查是否是地板且未发光
         if (!maze[x, z].IsWall && !maze[x, z].IsLit && maze[x, z].CellObject != null)
         {
             maze[x, z].IsLit = true;
-            var renderer = maze[x, z].CellObject.GetComponent<MeshRenderer>();
-            if (renderer != null)
+            
+            // 获取 body 子物体
+            Transform bodyTransform = maze[x, z].CellObject.transform.Find("body");
+            if (bodyTransform != null)
             {
-                Material playerMaterial = Resources.Load<Material>("Materials/PlayerMaterial");
-                if (playerMaterial != null)
+                var renderer = bodyTransform.GetComponent<MeshRenderer>();
+                if (renderer != null)
                 {
-                    renderer.material = new Material(playerMaterial);
+                    Material playerMaterial = Resources.Load<Material>("Materials/PlayerMaterial");
+                    if (playerMaterial != null)
+                    {
+                        Debug.Log($"Applying PlayerMaterial to floor body at ({x}, {z})");
+                        renderer.material = playerMaterial;
+                    }
+                    else
+                    {
+                        Debug.LogError("Failed to load PlayerMaterial");
+                    }
                 }
+            }
+            else
+            {
+                Debug.LogError($"No 'body' child found on floor at ({x}, {z})");
             }
         }
     }
@@ -654,7 +689,7 @@ public class MazeManager : BaseManager<MazeManager>
     private void CreatePointEffects()
     {
         // 创建起点效果
-        startPointEffect = CreateCircleEffect(new Color(0f, 1f, 0f, 0.5f));  // 绿色光圈
+        startPointEffect = CreateCircleEffect(new Color(0f, 1f, 0f, 0.5f));  // 绿色光��
         Vector3 startPos = GetWorldPosition(1, 1, 0.1f);  // 稍微抬高一点避免穿透
         startPointEffect.transform.position = startPos;
 

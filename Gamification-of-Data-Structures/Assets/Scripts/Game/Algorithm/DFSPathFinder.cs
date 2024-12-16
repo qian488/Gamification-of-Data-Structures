@@ -4,14 +4,16 @@ using System.Collections.Generic;
 
 /// <summary>
 /// 深度优先搜索寻路器
-/// 实现迷宫中的深度优先搜索算法
+/// 实现基于DFS的迷宫寻路算法
 /// </summary>
 /// <remarks>
-/// 主要特点：
-/// 1. 优先探索深度方向
-/// 2. 使用栈结构进行回溯
-/// 3. 提供实时的搜索过程可视化
-/// 4. 支持路径回溯的视觉效果
+/// 主要功能：
+/// 1. 实现深度优先搜索算法
+/// 2. 提供实时的路径可视化
+/// 3. 支持回溯路径显示
+/// 4. 记录搜索过程数据
+/// 5. 优化搜索效率
+/// 6. 处理边界情况
 /// </remarks>
 public class DFSPathFinder : PathFinder
 {
@@ -47,6 +49,7 @@ public class DFSPathFinder : PathFinder
     /// </summary>
     public override IEnumerator<YieldInstruction> FindPathStepByStep()
     {
+        Debug.Log("Starting DFS path finding");
         stack.Clear();
         parent.Clear();
         inStack.Clear();
@@ -55,49 +58,50 @@ public class DFSPathFinder : PathFinder
         stack.Push(startPos);
         inStack.Add(startPos);
         visited[startPos.x, startPos.y] = true;
+        Debug.Log($"Marking start position: {startPos}");
         MarkCell(startPos, Color.yellow); // 标记起点
 
         while (stack.Count > 0)
         {
             currentExploring = stack.Peek();
             exploredCount++;
+            Debug.Log($"Exploring position: {currentExploring}");
             
             if (currentExploring == endPos)
             {
-                // 找到终点，重建路径
+                Debug.Log("Found end position!");
                 ReconstructPath();
                 yield break;
             }
 
-            // 尝试找到一个未访问的相邻节点
             bool foundUnvisited = false;
             foreach (var dir in directions)
             {
                 Vector2Int next = new Vector2Int(currentExploring.x + dir.x, currentExploring.y + dir.y);
                 if (IsValid(next))
                 {
+                    Debug.Log($"Found valid next position: {next}");
                     stack.Push(next);
                     inStack.Add(next);
                     visited[next.x, next.y] = true;
                     parent[next] = currentExploring;
-                    MarkCell(next, Color.yellow); // 标记访问过的节点
+                    MarkCell(next, Color.yellow);
                     foundUnvisited = true;
                     break;
                 }
             }
 
-            // 如果没有找到未访问的相邻节点，进行回溯
             if (!foundUnvisited)
             {
+                Debug.Log($"No unvisited neighbors found for {currentExploring}, backtracking");
                 Vector2Int backtrack = stack.Pop();
                 inStack.Remove(backtrack);
-                if (backtrack != endPos) // 不要标记终点为灰色
+                if (backtrack != endPos)
                 {
-                    MarkCell(backtrack, Color.gray); // 标记回溯的节点
+                    MarkCell(backtrack, Color.gray);
                 }
             }
 
-            // 每探索一个节点后等待一帧
             yield return new WaitForSeconds(0.05f);
         }
     }

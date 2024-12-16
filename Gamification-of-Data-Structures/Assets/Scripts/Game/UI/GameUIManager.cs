@@ -9,10 +9,11 @@ using UnityEngine.UI;
 /// </summary>
 /// <remarks>
 /// 主要功能：
-/// 1. 初始化并管理迷宫游戏UI
-/// 2. 初始化并管理算法可视化UI
-/// 3. 处理游戏完成事件
-/// 4. 协调不同UI面板之间的交互
+/// 1. 管理所有UI面板的生命周期
+/// 2. 协调不同UI面板之间的交互
+/// 3. 处理全局UI事件
+/// 4. 管理UI资源的加载和卸载
+/// 5. 提供UI状态的查询和控制接口
 /// </remarks>
 public class GameUIManager : BaseManager<GameUIManager>
 {
