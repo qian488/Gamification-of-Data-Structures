@@ -3,29 +3,33 @@ using System.Collections.Generic;
 using System.Collections;
 
 /// <summary>
-/// 寻路算法基类
-/// 为各种寻路算法提供基础框架
+/// 迷宫寻路算法基类
+/// 定义寻路算法的通用接口和基本功能
 /// </summary>
 /// <remarks>
 /// 主要功能：
-/// 1. 定义寻路算法的通用接口
-/// 2. 提供基础的路径查找工具
-/// 3. 管理路径的可视化效果
-/// 4. 处理算法执行状态
-/// 5. 提供算法性能统计
-/// 6. 支持分步执行和动画展示
+/// 1. 寻路控制：
+///    - StartPathFinding()：开始寻路
+///    - StopPathFinding()：停止寻路
+///    - ResetPath()：重置路径
+/// 2. 路径管理：
+///    - HighlightPath()：高亮显示路径
+///    - MarkVisited()：标记已访问单元格
+/// 3. 状态通知：
+///    - OnPathFound：找到路径时的回调
+///    - OnVisitCell：访问单元格时的回调
+/// 
+/// 使用方式：
+/// - 继承此类实现具体的寻路算法
+/// - 重写FindPath()方法实现算法逻辑
+/// - 通过事件系统通知UI更新
 /// </remarks>
 public abstract class PathFinder
 {
-    /// <summary>迷宫数据引用</summary>
     protected MazeCell[,] maze;
-    /// <summary>存储找到的路径</summary>
     protected List<Vector2Int> path = new List<Vector2Int>();
-    /// <summary>起点坐标</summary>
     protected Vector2Int startPos;
-    /// <summary>终点坐标</summary>
     protected Vector2Int endPos;
-    /// <summary>记录已访问的单元格</summary>
     protected bool[,] visited;
     
     /// <summary>可移动的四个方向：上、右、下、左</summary>
@@ -37,11 +41,14 @@ public abstract class PathFinder
         new Vector2Int(0, -1)
     };
 
+    protected bool pathFound = false;
+    protected List<Vector2Int> finalPath = new List<Vector2Int>();
+
     public PathFinder(MazeCell[,] maze)
     {
         this.maze = maze;
-        this.startPos = new Vector2Int(1, 1);  // 起点
-        this.endPos = new Vector2Int(maze.GetLength(0) - 2, maze.GetLength(1) - 2);  // 终点
+        this.startPos = new Vector2Int(1, 1);  
+        this.endPos = new Vector2Int(maze.GetLength(0) - 2, maze.GetLength(1) - 2);  
         this.visited = new bool[maze.GetLength(0), maze.GetLength(1)];
     }
 
@@ -131,8 +138,34 @@ public abstract class PathFinder
         }
     }
 
-    // 添加新方法
     public abstract IEnumerator<YieldInstruction> FindPathStepByStep();
     public abstract Vector2Int GetCurrentExploringPosition();
     public abstract int GetExploredCount();
+
+    public bool HasFoundPath()
+    {
+        return pathFound;
+    }
+
+    public List<Vector2Int> GetFinalPath()
+    {
+        return finalPath;
+    }
+
+    protected void ReconstructPath(Dictionary<Vector2Int, Vector2Int> parent)
+    {
+        finalPath.Clear();
+        Vector2Int current = endPos;
+        
+        while (current != startPos)
+        {
+            finalPath.Add(current);
+            MarkCell(current, Color.green);
+            current = parent[current];
+        }
+        
+        finalPath.Add(startPos);
+        finalPath.Reverse();
+        pathFound = true;
+    }
 } 

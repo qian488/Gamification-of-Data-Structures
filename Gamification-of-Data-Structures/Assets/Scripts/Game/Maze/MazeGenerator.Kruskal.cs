@@ -1,9 +1,26 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+/// <summary>
+/// 迷宫生成器Kruskal部分
+/// 使用Kruskal最小生成树算法生成迷宫
+/// </summary>
+/// <remarks>
+/// 算法流程：
+/// 1. 初始化所有单元格为独立集合
+/// 2. 收集所有可能的边
+/// 3. 随机打乱边的顺序
+/// 4. 依次处理每条边：
+///    - 检查两端单元格是否连通
+///    - 若不连通则合并集合并打通墙壁
+/// 
+/// 特点：
+/// - 生成的迷宫较为均衡
+/// - 分支较多
+/// - 路径分布较为随机
+/// </remarks>
 public partial class MazeGenerator
 {
-    // 用于Kruskal算法的边结构
     private struct Edge
     {
         public Vector2Int from;
@@ -15,13 +32,11 @@ public partial class MazeGenerator
             this.to = to;
         }
     }
-    // Kruskal算法
     private void KruskalGeneration()
     {
         Dictionary<Vector2Int, Vector2Int> parent = new Dictionary<Vector2Int, Vector2Int>();
         List<Edge> edges = new List<Edge>();
 
-        // 初始化单元格和收集边
         for (int x = 1; x < width - 1; x += 2)
         {
             for (int y = 1; y < height - 1; y += 2)

@@ -3,29 +3,31 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// 深度优先搜索寻路器
-/// 实现基于DFS的迷宫寻路算法
+/// 深度优先搜索寻路算法类
+/// 使用DFS策略在迷宫中寻找路径
 /// </summary>
 /// <remarks>
-/// 主要功能：
-/// 1. 实现深度优先搜索算法
-/// 2. 提供实时的路径可视化
-/// 3. 支持回溯路径显示
-/// 4. 记录搜索过程数据
-/// 5. 优化搜索效率
-/// 6. 处理边界情况
+/// 算法流程：
+/// 1. 从起点开始深度搜索：
+///    - 标记当前单元格为已访问
+///    - 递归探索未访问的相邻单元格
+///    - 回溯处理死路
+/// 2. 路径处理：
+///    - 使用栈记录访问路径
+///    - 回溯时移除无效路径
+///    - 找到终点时保存路径
+/// 
+/// 特点：
+/// - 倾向于生成较长的路径
+/// - 不保证最短路径
+/// - 适合探索迷宫的所有可能路径
 /// </remarks>
 public class DFSPathFinder : PathFinder
 {
-    /// <summary>用于DFS的栈</summary>
     private Stack<Vector2Int> stack = new Stack<Vector2Int>();
-    /// <summary>当前正在探索的位置</summary>
     private Vector2Int currentExploring;
-    /// <summary>已探索的节点数量</summary>
     private int exploredCount = 0;
-    /// <summary>记录每个位置的父节点</summary>
     private Dictionary<Vector2Int, Vector2Int> parent = new Dictionary<Vector2Int, Vector2Int>();
-    /// <summary>记录在栈中的节点</summary>
     private HashSet<Vector2Int> inStack = new HashSet<Vector2Int>();
 
     public DFSPathFinder(MazeCell[,] maze) : base(maze)
@@ -54,23 +56,22 @@ public class DFSPathFinder : PathFinder
         parent.Clear();
         inStack.Clear();
         exploredCount = 0;
+        pathFound = false;
         
         stack.Push(startPos);
         inStack.Add(startPos);
         visited[startPos.x, startPos.y] = true;
-        Debug.Log($"Marking start position: {startPos}");
-        MarkCell(startPos, Color.yellow); // 标记起点
+        MarkCell(startPos, Color.yellow);
 
         while (stack.Count > 0)
         {
             currentExploring = stack.Peek();
             exploredCount++;
-            Debug.Log($"Exploring position: {currentExploring}");
             
             if (currentExploring == endPos)
             {
                 Debug.Log("Found end position!");
-                ReconstructPath();
+                ReconstructPath(parent);
                 yield break;
             }
 
@@ -80,7 +81,6 @@ public class DFSPathFinder : PathFinder
                 Vector2Int next = new Vector2Int(currentExploring.x + dir.x, currentExploring.y + dir.y);
                 if (IsValid(next))
                 {
-                    Debug.Log($"Found valid next position: {next}");
                     stack.Push(next);
                     inStack.Add(next);
                     visited[next.x, next.y] = true;
@@ -93,7 +93,6 @@ public class DFSPathFinder : PathFinder
 
             if (!foundUnvisited)
             {
-                Debug.Log($"No unvisited neighbors found for {currentExploring}, backtracking");
                 Vector2Int backtrack = stack.Pop();
                 inStack.Remove(backtrack);
                 if (backtrack != endPos)
@@ -110,25 +109,5 @@ public class DFSPathFinder : PathFinder
     public override IEnumerator FindPath()
     {
         yield break;
-    }
-
-    /// <summary>
-    /// 重建从起点到终点的路径
-    /// 并标记最终路径
-    /// </summary>
-    private void ReconstructPath()
-    {
-        path.Clear();
-        Vector2Int current = endPos;
-        
-        while (current != startPos)
-        {
-            path.Add(current);
-            MarkCell(current, Color.green); // 标记最终路径
-            current = parent[current];
-        }
-        
-        path.Add(startPos);
-        path.Reverse();
     }
 }

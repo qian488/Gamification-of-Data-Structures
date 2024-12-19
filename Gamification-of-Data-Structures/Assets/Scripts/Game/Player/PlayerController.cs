@@ -6,9 +6,7 @@ using UnityEngine;
 /// </summary>
 public enum ViewMode
 {
-    /// <summary>第一人称视角</summary>
     FirstPerson,
-    /// <summary>俯视角视角</summary>
     TopDown
 }
 
@@ -18,27 +16,34 @@ public enum ViewMode
 /// </summary>
 /// <remarks>
 /// 主要功能：
-/// 1. 处理键盘和鼠标输入
-/// 2. 实现玩家移动和旋转
-/// 3. 管理玩家的物理碰撞
-/// 4. 处理视角切换
-/// 5. 控制玩家与环境的交互
-/// 6. 管理玩家状态（移动、禁用）
+/// 1. 移动控制：
+///    - WASD键移动
+///    - 鼠标视角控制
+///    - 视角切换（V键）
+/// 2. 状态管理：
+///    - EnableControl()：启用控制
+///    - DisableControl()：禁用控制
+///    - 碰撞检测和位置更新
+/// 3. 光照控制：
+///    - L键开关聚光灯
+///    - 自动照亮行走路径
+/// 
+/// 使用方式：
+/// - 通过PlayerManager创建和管理
+/// - 自动处理输入和移动
+/// - 通过事件系统发送移动和状态更新
 /// </remarks>
 public class PlayerController : MonoBehaviour
 {
-    /// <summary>玩家移动速度</summary>
-    private float moveSpeed = 2f;
-    /// <summary>鼠标灵敏度</summary>
+    private float moveSpeed = 5f;
     private float mouseSensitivity = 1.5f;
-    /// <summary>刚体组件引用</summary>
     private Rigidbody rb;
-    /// <summary>是否允许移动</summary>
     private bool canMove = false;
-    /// <summary>当前视角模式</summary>
     private ViewMode currentViewMode = ViewMode.FirstPerson;
-    /// <summary>主相机引用</summary>
     private Camera mainCamera;
+    private bool spotLightEnabled = true;
+    private float defaultSpotLightRange = 60f;
+    private float defaultSpotLightAngle = 120f;
 
     private void Start()
     {
@@ -63,8 +68,12 @@ public class PlayerController : MonoBehaviour
         EventCenter.GetInstance().AddEventListener<Vector2>("PlayerMove", OnPlayerMove);
         EventCenter.GetInstance().AddEventListener<Vector2>("MouseMove", OnMouseMove);
 
-        // 初始化相机位置
         UpdateCameraView(currentViewMode);
+
+        // 初始化聚光灯
+        PlayerManager.GetInstance().SetSpotLightEnabled(spotLightEnabled);
+        PlayerManager.GetInstance().SetSpotLightRange(defaultSpotLightRange);
+        PlayerManager.GetInstance().SetSpotLightAngle(defaultSpotLightAngle);
     }
 
     private void Update()
@@ -72,7 +81,6 @@ public class PlayerController : MonoBehaviour
         // 处理Alt键控制鼠标显示
         if (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyDown(KeyCode.RightAlt))
         {
-            // Alt按下时显示鼠标
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
             canMove = false;  // 显示鼠标时暂停移动
@@ -100,39 +108,43 @@ public class PlayerController : MonoBehaviour
         }
 
         // 检测算法控制输入
-        if (Input.GetKeyDown(KeyCode.Alpha1))  // 按1重新生成迷宫
+        if (Input.GetKeyDown(KeyCode.Alpha1))  
         {
             MazeManager.GetInstance().GenerateMaze();
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha2))  // 按2进行DFS演示
+        else if (Input.GetKeyDown(KeyCode.Alpha2))  
         {
             MazeManager.GetInstance().StartPathFinding(true);  // true表示使用DFS
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha3))  // 按3进行BFS演示
+        else if (Input.GetKeyDown(KeyCode.Alpha3))  
         {
             MazeManager.GetInstance().StartPathFinding(false);  // false表示使用BFS
         }
-        else if (Input.GetKeyDown(KeyCode.R))  // 按R重置位置
+        else if (Input.GetKeyDown(KeyCode.R))
         {
             MazeManager.GetInstance().ResetAll();
         }
         
-        // 检测当前位置的地板
         CheckAndLightFloor();
-
-        // 检查是否到达终点
         CheckGameFinish();
 
         // 检测 ESC 键退出游戏
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            // 显示鼠标
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
             canMove = false;
-            // 显示确认对话框
+
             GameUIManager.GetInstance().ShowExitConfirmPanel();
         }
+
+        // 添加聚光灯开关控制
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            spotLightEnabled = !spotLightEnabled;
+            PlayerManager.GetInstance().SetSpotLightEnabled(spotLightEnabled);
+        }
+
     }
 
     private void SwitchView()
@@ -164,7 +176,6 @@ public class PlayerController : MonoBehaviour
     {
         if (!canMove || rb == null) return;
 
-        // 使用 MovePosition 而不是直接设置 velocity
         Vector3 moveDirection = transform.forward * input.y + transform.right * input.x;
         moveDirection.Normalize();
         
@@ -179,13 +190,11 @@ public class PlayerController : MonoBehaviour
         // 根据视角模式处理旋转
         if (currentViewMode == ViewMode.FirstPerson)
         {
-            // 第一人称模式：直接旋转玩家和相机
             transform.Rotate(Vector3.up * mouseDelta.x * mouseSensitivity);
         }
         else
         {
-            // 俯���角模式：按住右键时旋转玩家
-            if (Input.GetMouseButton(1))  // 1 代表鼠标右键
+            if (Input.GetMouseButton(1))  
             {
                 transform.Rotate(Vector3.up * mouseDelta.x * mouseSensitivity);
                 
@@ -193,7 +202,7 @@ public class PlayerController : MonoBehaviour
                 var cameraFollow = mainCamera.GetComponent<CameraFollow>();
                 if (cameraFollow != null)
                 {
-                    cameraFollow.SetTopDownView();  // 这会根据玩家的新方向更新相机旋转
+                    cameraFollow.SetTopDownView();
                 }
             }
         }
@@ -214,7 +223,7 @@ public class PlayerController : MonoBehaviour
     {
         EventCenter.GetInstance().RemoveEventListener<Vector2>("PlayerMove", OnPlayerMove);
         EventCenter.GetInstance().RemoveEventListener<Vector2>("MouseMove", OnMouseMove);
-        // 解锁鼠标
+
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
@@ -225,23 +234,20 @@ public class PlayerController : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(transform.position, Vector3.down, out hit, 2f))
         {
-            // 获取击中的世界坐标
             Vector3 hitPoint = hit.point;
             
-            // 获取迷宫中心坐标
             float centerX, centerZ;
             MazeManager.GetInstance().GetMazeCenter(out centerX, out centerZ);
             
-            // 计算相对位置
             int x = Mathf.RoundToInt((hitPoint.x - centerX) / MazeManager.GetInstance().CellSize);
             int z = Mathf.RoundToInt((hitPoint.z - centerZ) / MazeManager.GetInstance().CellSize);
 
-            // 设置地板发光
             MazeManager.GetInstance().LightFloor(x, z);
         }
     }
 
-    private void CheckGameFinish(){
+    private void CheckGameFinish()
+    {
         Vector3 playerPos = transform.position;
         float centerX, centerZ;
         MazeManager.GetInstance().GetMazeCenter(out centerX, out centerZ);
@@ -252,7 +258,9 @@ public class PlayerController : MonoBehaviour
         if (playerGridX == MazeManager.GetInstance().MazeWidth - 2 && 
             playerGridZ == MazeManager.GetInstance().MazeHeight - 2)
         {
-            EventCenter.GetInstance().EventTrigger(MazeManager.EVENT_MAZE_COMPLETED);
+            canMove = false;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
     }
 

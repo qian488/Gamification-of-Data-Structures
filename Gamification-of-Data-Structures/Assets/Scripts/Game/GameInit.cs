@@ -3,13 +3,20 @@ using System.Collections;
 
 /// <summary>
 /// 游戏初始化类
-/// 负责在游戏开始时初始化所有必要的管理器和组件，确保游戏系统的正确启动顺序
+/// 负责在游戏开始时按特定顺序初始化所有必要的管理器和组件
 /// </summary>
 /// <remarks>
-/// 主要功能：
-/// 1. 设置基本的游戏环境，如环境光照等
-/// 2. 按特定顺序初始化各个管理器
+/// 初始化流程：
+/// 1. 设置环境光照和渲染参数
+/// 2. 按顺序初始化管理器：
+///    - PlayerManager：玩家管理器
+///    - GameUIManager：UI管理器
+///    - MazeManager：迷宫管理器
 /// 3. 生成初始迷宫
+/// 
+/// 使用方式：
+/// - 将此脚本挂载到场景中的空物体上
+/// - 游戏启动时会自动执行初始化流程
 /// </remarks>
 public class GameInit : MonoBehaviour
 {
@@ -18,12 +25,10 @@ public class GameInit : MonoBehaviour
     /// </summary>
     void Start()
     {
-        // 调亮环境光
-        RenderSettings.ambientLight = new Color(1f, 1f, 1f);  // 改为纯白色
-        RenderSettings.ambientIntensity = 1.5f;  // 增加强度
+        RenderSettings.ambientLight = new Color(1f, 1f, 1f);  
+        RenderSettings.ambientIntensity = 1.5f; 
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
 
-        // 使用协程确保初始化顺序
         StartCoroutine(InitGame());
     }
 
@@ -33,13 +38,10 @@ public class GameInit : MonoBehaviour
     /// </summary>
     private IEnumerator InitGame()
     {
-        // 初始化所有管理器
         yield return InitAllManagers();
         
-        // 等待一帧确保所有初始化完成
         yield return new WaitForEndOfFrame();
         
-        // 生成迷宫
         MazeManager.GetInstance().GenerateMaze();
     }
 
@@ -52,11 +54,9 @@ public class GameInit : MonoBehaviour
     /// </summary>
     private IEnumerator InitAllManagers()
     {
-        // 先初始化PlayerManager，确保玩家只创建一次
         PlayerManager.GetInstance().Init();
         yield return new WaitForEndOfFrame();
 
-        // 再初始化其他管理器
         GameUIManager.GetInstance().Init();
         yield return new WaitForEndOfFrame();
 

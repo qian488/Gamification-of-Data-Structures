@@ -7,21 +7,33 @@ using System.Collections;
 /// </summary>
 /// <remarks>
 /// 主要功能：
-/// 1. 管理玩家对象的创建和销毁
-/// 2. 控制玩家的位置和朝向
-/// 3. 处理玩家的重生和重置
-/// 4. 协调玩家与其他系统的交互
-/// 5. 维护玩家的全局状态
+/// 1. 玩家管理：
+///    - Init()：初始化玩家对象
+///    - SetPlayerPosition()：设置玩家位置
+///    - GetPlayer()：获取玩家对象
+/// 2. 光照控制：
+///    - SetSpotLightEnabled()：开关聚光灯
+///    - SetSpotLightRange()：设置照射范围
+///    - SetSpotLightAngle()：设置照射角度
+/// 3. 移动控制：
+///    - SetMoveSpeed()：设置移动速度
+///    - GetMoveSpeed()：获取移动速度
+/// 
+/// 使用方式：
+/// - 通过GetInstance()获取单例
+/// - 使用Init()初始化玩家
+/// - 通过提供的方法控制玩家状态
 /// </remarks>
 public class PlayerManager : BaseManager<PlayerManager>
 {
-    /// <summary>玩家游戏对象引用</summary>
     private GameObject player;
-    /// <summary>相机跟随组件引用</summary>
     private CameraFollow cameraFollow;
-    /// <summary>玩家初始位置</summary>
     private Vector3 startPosition;
-    private float moveSpeed = 10f;  // 基础移动速度
+    private float moveSpeed = 10f;  
+    private Light spotLight;
+    private float spotLightRange = 60f; 
+    private float spotLightAngle = 120f;  
+    private float spotLightIntensity = 1.5f;
 
     /// <summary>
     /// 初始化玩家管理器
@@ -29,10 +41,8 @@ public class PlayerManager : BaseManager<PlayerManager>
     /// </summary>
     public void Init()
     {
-        // 先检查是否已经初始化过
         if (player != null) return;
 
-        // 加载玩家预制体
         ResourcesManager.GetInstance().LoadAsync<GameObject>("Prefabs/Player", (prefab) =>
         {
             if (prefab != null)
@@ -82,6 +92,20 @@ public class PlayerManager : BaseManager<PlayerManager>
             }
         }
 
+        // 添加聚光灯
+        GameObject lightObj = new GameObject("PlayerSpotLight");
+        lightObj.transform.SetParent(player.transform);
+        lightObj.transform.localPosition = new Vector3(0, 1f, 0); // 设置在玩家头部位置
+        
+        spotLight = lightObj.AddComponent<Light>();
+        spotLight.type = LightType.Spot;
+        spotLight.range = spotLightRange;
+        spotLight.spotAngle = spotLightAngle;
+        spotLight.intensity = spotLightIntensity;
+        spotLight.color = new Color(1f, 1f, 0.9f); 
+        spotLight.innerSpotAngle = spotLightAngle * 0.8f;  
+        spotLight.cookie = null;
+        
         MonoManager.GetInstance().AddUpdateListener(OnUpdate);
     }
 
@@ -91,7 +115,6 @@ public class PlayerManager : BaseManager<PlayerManager>
     /// </summary>
     private void OnUpdate()
     {
-        // 处理键盘输入
         float horizontal = 0;
         float vertical = 0;
 
@@ -105,7 +128,6 @@ public class PlayerManager : BaseManager<PlayerManager>
             EventCenter.GetInstance().EventTrigger("PlayerMove", new Vector2(horizontal, vertical));
         }
 
-        // 处理鼠标输入
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
         if (mouseX != 0 || mouseY != 0)
@@ -147,7 +169,6 @@ public class PlayerManager : BaseManager<PlayerManager>
     {
         if (player != null)
         {
-            // 开始重置动画
             MonoManager.GetInstance().StartCoroutine(ResetAnimation());
         }
     }
@@ -158,8 +179,8 @@ public class PlayerManager : BaseManager<PlayerManager>
     /// </summary>
     private IEnumerator ResetAnimation()
     {
-        float duration = 1.0f;  // 动画持续时间
-        float heightMax = 10f;  // 最大上升高度
+        float duration = 1.0f;  
+        float heightMax = 10f;  
         Vector3 startPos = player.transform.position;
         Vector3 upPos = startPos + Vector3.up * heightMax;
 
@@ -169,7 +190,6 @@ public class PlayerManager : BaseManager<PlayerManager>
         {
             elapsed += Time.deltaTime;
             float t = elapsed/(duration/2);
-            // 使用平滑的插值
             float smoothT = Mathf.SmoothStep(0, 1, t);
             player.transform.position = Vector3.Lerp(startPos, upPos, smoothT);
             yield return null;
@@ -181,8 +201,6 @@ public class PlayerManager : BaseManager<PlayerManager>
 
         // 设置到起始位置
         player.transform.position = startPosition;
-        
-        // 重新出现
         player.SetActive(true);
         
         // 下降阶段
@@ -230,5 +248,54 @@ public class PlayerManager : BaseManager<PlayerManager>
     public void SetMoveSpeed(float speed)
     {
         moveSpeed = speed;
+    }
+
+    public void SetSpotLightEnabled(bool enabled)
+    {
+        if (spotLight != null)
+        {
+            spotLight.enabled = enabled;
+        }
+    }
+
+    public void SetSpotLightRange(float range)
+    {
+        spotLightRange = range;
+        if (spotLight != null)
+        {
+            spotLight.range = range;
+        }
+    }
+
+    public void SetSpotLightAngle(float angle)
+    {
+        spotLightAngle = angle;
+        if (spotLight != null)
+        {
+            spotLight.spotAngle = angle;
+            spotLight.innerSpotAngle = angle * 0.8f;
+        }
+    }
+
+    public void SetSpotLightIntensity(float intensity)
+    {
+        spotLightIntensity = intensity;
+        if (spotLight != null)
+        {
+            spotLight.intensity = intensity;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (spotLight != null)
+        {
+            GameObject.Destroy(spotLight.gameObject);
+        }
+    }
+
+    public GameObject GetPlayer()
+    {
+        return player;
     }
 } 

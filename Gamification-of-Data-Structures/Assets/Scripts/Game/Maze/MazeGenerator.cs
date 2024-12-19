@@ -3,24 +3,30 @@ using System.Collections.Generic;
 
 /// <summary>
 /// 迷宫生成器类
-/// 使用深度优先搜索算法生成随机迷宫
+/// 负责使用多种算法生成随机迷宫
 /// </summary>
 /// <remarks>
 /// 主要功能：
-/// 1. 随机生成迷宫布局
-/// 2. 确保迷宫的连通性
-/// 3. 设置起点和终点
-/// 4. 处理迷宫边界
+/// 1. 迷宫生成：
+///    - DFS算法：深度优先搜索生成
+///    - Prim算法：最小生成树法
+///    - Kruskal算法：并查集生成
+///    - 递归分割：空间递归划分
+/// 2. 迷宫处理：
+///    - SetBoundaries()：设置边界
+///    - SetStartAndEnd()：设置起终点
+///    - InitializeMaze()：初始化迷宫
+/// 
+/// 使用方式：
+/// - 创建MazeGenerator实例
+/// - 调用GenerateMaze()生成迷宫
+/// - 随机选择一种生成算法
 /// </remarks>
 public partial class MazeGenerator
 {
-    /// <summary>迷宫数据数组</summary>
     private MazeCell[,] maze;
-    /// <summary>迷宫宽度</summary>
     private int width;
-    /// <summary>迷宫高度</summary>
     private int height;
-    /// <summary>随机数生成器</summary>
     private System.Random random;
 
     /// <summary>可移动方向数组：上、右、下、左</summary>

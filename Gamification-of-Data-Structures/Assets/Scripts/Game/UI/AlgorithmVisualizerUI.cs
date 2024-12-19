@@ -5,31 +5,34 @@ using System.Collections.Generic;
 
 /// <summary>
 /// 算法可视化UI面板类
-/// 负责显示和控制算法执行过程的可视化界面
+/// 负责显示算法执行过程的实时状态和说明
 /// </summary>
 /// <remarks>
 /// 主要功能：
-/// 1. 显示算法执行的实时状态
-/// 2. 提供操作指南说明
-/// 3. 显示算法原理介绍
-/// 4. 支持UI面板的显示/隐藏
-/// 5. 记录和显示算法执行步骤
+/// 1. 状态显示：
+///    - ShowDFSInfo()：显示深度优先搜索说明
+///    - ShowBFSInfo()：显示广度优先搜索说明
+///    - UpdateStatus()：更新当前执行状态
+/// 2. 步骤管理：
+///    - IncrementSteps()：增加步数计数
+///    - ResetSteps()：重置步数计数
+/// 3. 面板控制：
+///    - TogglePanel()：切换面板显示状态（Tab键）
+///    - FadePanel()：实现面板渐变效果
+/// 
+/// 使用方式：
+/// - Tab键切换面板显示/隐藏
+/// - 自动显示当前算法的执行状态
+/// - 通过其他系统调用更新显示内容
 /// </remarks>
 public class AlgorithmVisualizerUI : BasePanel
 {
-    /// <summary>显示执行步骤的文本组件</summary>
     private Text stepsText;
-    /// <summary>当前执行步骤计数</summary>
     private int stepCount = 0;
-    /// <summary>显示操作指南的文本组件</summary>
     private Text operationGuideText;
-    /// <summary>显示算法信息的文本组件</summary>
     private Text algorithmInfoText;
-    /// <summary>显示当前状态的文本组件</summary>
     private Text statusText;
-    /// <summary>背景面板</summary>
     private GameObject bgPanel;
-    /// <summary>面板显示状态</summary>
     private bool isPanelVisible = true;
 
     protected override void Awake()
@@ -37,13 +40,11 @@ public class AlgorithmVisualizerUI : BasePanel
         base.Awake();
         InitComponents();
         ShowOperationGuide();
-        // 注册Update事件来监听Tab键
         MonoManager.GetInstance().AddUpdateListener(CheckTabInput);
     }
 
     private void OnDestroy()
     {
-        // 移除Update事件监听
         MonoManager.GetInstance().RemoveUpdateListener(CheckTabInput);
     }
 
@@ -60,27 +61,23 @@ public class AlgorithmVisualizerUI : BasePanel
         isPanelVisible = !isPanelVisible;
         if (bgPanel != null)
         {
-            // 使用渐变效果
             StartCoroutine(FadePanel(isPanelVisible));
         }
     }
 
     private IEnumerator FadePanel(bool fadeIn)
     {
-        float duration = 0.2f;  // 渐变持续时间
+        float duration = 0.2f;  
         float elapsed = 0;
         
-        // 如果要显示面板，先激活它
         if (fadeIn)
         {
             bgPanel.SetActive(true);
         }
         
-        // 获取所有Text组件
         Text[] texts = bgPanel.GetComponentsInChildren<Text>();
         Image bgImage = bgPanel.GetComponent<Image>();
         
-        // 设置初始透明度
         Color bgColor = bgImage.color;
         Color[] textColors = new Color[texts.Length];
         for (int i = 0; i < texts.Length; i++)
@@ -94,11 +91,9 @@ public class AlgorithmVisualizerUI : BasePanel
             float t = elapsed / duration;
             float alpha = fadeIn ? t : 1 - t;
 
-            // 更新背景透明度
-            bgColor.a = alpha * 0.7f;  // 0.7f 是原始背景透明度
+            bgColor.a = alpha * 0.7f;  
             bgImage.color = bgColor;
 
-            // 更新所有文本透明度
             for (int i = 0; i < texts.Length; i++)
             {
                 Color color = textColors[i];
@@ -109,14 +104,12 @@ public class AlgorithmVisualizerUI : BasePanel
             yield return null;
         }
 
-        // 确保最终状态正确
         if (!fadeIn)
         {
             bgPanel.SetActive(false);
         }
         else
         {
-            // 确保完全显示
             bgColor.a = 0.7f;
             bgImage.color = bgColor;
             for (int i = 0; i < texts.Length; i++)
@@ -130,14 +123,13 @@ public class AlgorithmVisualizerUI : BasePanel
 
     private void InitComponents()
     {
-        // 创建背景面板
         bgPanel = CreatePanel("BackgroundPanel", 
             new Vector2(0.05f, 0.70f),    
             new Vector2(0.95f, 0.98f));  
         bgPanel.GetComponent<Image>().color = new Color(0, 0, 0, 0.7f);
 
         // 三个并排的面板，每个占据背景面板的三分之一宽度
-        float panelSpacing = 0.005f;  // 减小面板间距
+        float panelSpacing = 0.005f;  
 
         // 左侧面板：状态信息
         var leftPanel = CreatePanel("LeftPanel", 
@@ -218,7 +210,7 @@ public class AlgorithmVisualizerUI : BasePanel
             "一种迷宫探索策略，特点是：\n" +
             "1.从起点开始，优先往深处探索\n" +
             "2.遇到死路就回溯到最近的分岔口\n" +
-            "3.继续探索未访问的新路径\n" +
+            "3.继续探索未访��的新路径\n" +
             "4.直到找到终点或探索完整个迷宫\n\n" +
             "【演示说明】\n" +
             "黄色 - 当前访问的路径\n" +
@@ -263,7 +255,7 @@ public class AlgorithmVisualizerUI : BasePanel
         }
     }
 
-    // 使用与MazeGameUI相同的辅助方法
+    // 辅助方法
     private GameObject CreatePanel(string name, Vector2 anchorMin, Vector2 anchorMax)
     {
         var panel = new GameObject(name);

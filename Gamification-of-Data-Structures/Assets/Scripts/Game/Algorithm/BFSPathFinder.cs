@@ -3,27 +3,31 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// 广度优先搜索寻路器
-/// 实现迷宫中的广度优先搜索算法
+/// 广度优先搜索寻路算法类
+/// 使用BFS策略在迷宫中寻找最短路径
 /// </summary>
 /// <remarks>
-/// 主要特点：
-/// 1. 按层级顺序探索迷宫
-/// 2. 保证找到最短路径
-/// 3. 提供实时的搜索过程可视化
-/// 4. 支持平滑的路径移动
+/// 算法流程：
+/// 1. 层级遍历：
+///    - 使用队列存储待访问单元格
+///    - 按距离递增顺序访问
+///    - 记录每个单元格的前驱节点
+/// 2. 路径构建：
+///    - 找到终点后回溯构建路径
+///    - 使用前驱节点信息
+///    - 反向生成最终路径
+/// 
+/// 特点：
+/// - 保证找到最短路径
+/// - 搜索范围呈圆形扩展
+/// - 内存消耗较大但效率高
 /// </remarks>
 public class BFSPathFinder : PathFinder
 {
-    /// <summary>用于BFS的队列</summary>
     private Queue<Vector2Int> queue = new Queue<Vector2Int>();
-    /// <summary>记录每个位置的父节点</summary>
     private Dictionary<Vector2Int, Vector2Int> parent = new Dictionary<Vector2Int, Vector2Int>();
-    /// <summary>当前正在探索的位置</summary>
     private Vector2Int currentExploring;
-    /// <summary>已探索的节点数量</summary>
     private int exploredCount = 0;
-    /// <summary>用于平滑移动的路径队列</summary>
     private Queue<Vector2Int> movementPath = new Queue<Vector2Int>();
 
     public BFSPathFinder(MazeCell[,] maze) : base(maze)
@@ -32,7 +36,7 @@ public class BFSPathFinder : PathFinder
     }
 
     /// <summary>
-    /// 获��前正在探索的位置
+    /// 获前正在探索的位置
     /// </summary>
     /// <returns>当前探索位置的坐标</returns>
     public override Vector2Int GetCurrentExploringPosition()
@@ -58,67 +62,28 @@ public class BFSPathFinder : PathFinder
         queue.Clear();
         parent.Clear();
         exploredCount = 0;
-        movementPath.Clear();
+        pathFound = false;
         
         // 重置访问数组
         for (int i = 0; i < maze.GetLength(0); i++)
-        {
             for (int j = 0; j < maze.GetLength(1); j++)
-            {
                 visited[i, j] = false;
-            }
-        }
-        
-        // 获取玩家基础移动速度并翻倍
-        float baseSpeed = PlayerManager.GetInstance().GetMoveSpeed();
-        PlayerManager.GetInstance().SetMoveSpeed(baseSpeed * 2);
         
         queue.Enqueue(startPos);
         visited[startPos.x, startPos.y] = true;
-        
-        // 添加调试日志
-        Debug.Log($"Starting BFS from position {startPos}");
-        Debug.Log($"Maze dimensions: {maze.GetLength(0)}x{maze.GetLength(1)}");
-        
-        // 验证起点位置是否有效
-        if (maze[startPos.x, startPos.y].CellObject == null)
-        {
-            Debug.LogError($"Invalid start position: No cell object at {startPos}");
-            yield break;
-        }
-        
         MarkCell(startPos, Color.yellow);
         currentExploring = startPos;
 
         while (queue.Count > 0)
         {
             Vector2Int current = queue.Dequeue();
-            
-            if (current != currentExploring)
-            {
-                GenerateMovementPath(currentExploring, current);
-                
-                while (movementPath.Count > 0)
-                {
-                    yield return new WaitForSeconds(0.05f);
-                    Vector2Int nextPos = movementPath.Dequeue();
-                    
-                    // 如果这个位置已经被访问过，且不是起点和终点，则标记为灰色
-                    if (visited[nextPos.x, nextPos.y] && nextPos != startPos && nextPos != endPos)
-                    {
-                        MarkCell(nextPos, Color.gray);
-                    }
-                    
-                    currentExploring = nextPos;
-                }
-            }
-
+            currentExploring = current;
             exploredCount++;
             
             if (current == endPos)
             {
                 Debug.Log("Found end position!");
-                ReconstructPath();
+                ReconstructPath(parent);
                 yield break;
             }
 
@@ -126,27 +91,22 @@ public class BFSPathFinder : PathFinder
             {
                 Vector2Int next = new Vector2Int(current.x + dir.x, current.y + dir.y);
                 
-                if (next.x < 0 || next.x >= maze.GetLength(0) ||
-                    next.y < 0 || next.y >= maze.GetLength(1))
-                {
-                    continue;
-                }
-                
                 if (IsValid(next))
                 {
-                    Debug.Log($"Found valid next position: {next}");
                     queue.Enqueue(next);
                     visited[next.x, next.y] = true;
                     parent[next] = current;
-                    MarkCell(next, Color.yellow);  // 新发现的节点标记为黄色
+                    MarkCell(next, Color.yellow);
                 }
+            }
+
+            if (current != startPos && current != endPos)
+            {
+                MarkCell(current, Color.gray);
             }
 
             yield return new WaitForSeconds(0.05f);
         }
-
-        // 搜索结束后恢复原速度
-        PlayerManager.GetInstance().SetMoveSpeed(baseSpeed);
     }
 
     private void GenerateMovementPath(Vector2Int from, Vector2Int to)
@@ -211,21 +171,5 @@ public class BFSPathFinder : PathFinder
     public override IEnumerator FindPath()
     {
         yield break;
-    }
-
-    private void ReconstructPath()
-    {
-        path.Clear();
-        Vector2Int current = endPos;
-        
-        while (current != startPos)
-        {
-            path.Add(current);
-            MarkCell(current, Color.green);
-            current = parent[current];
-        }
-        
-        path.Add(startPos);
-        path.Reverse();
     }
 }

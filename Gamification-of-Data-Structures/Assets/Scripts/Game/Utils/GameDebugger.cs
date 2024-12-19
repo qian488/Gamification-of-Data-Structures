@@ -2,13 +2,16 @@ using UnityEngine;
 
 /// <summary>
 /// 游戏调试工具类
-/// 提供统一的调试日志输出和调试模式控制功能
+/// 提供统一的调试日志输出和调试模式控制
 /// </summary>
 /// <remarks>
 /// 主要功能：
-/// 1. 控制调试日志的输出
-/// 2. 提供调试模式的开关功能
-/// 3. 统一调试信息的格式
+/// - Log(string message)：输出带格式的调试日志
+/// - ToggleDebugMode()：切换调试模式开关
+/// 
+/// 使用方式：
+/// GameDebugger.Log("调试信息");  // 输出调试信息
+/// GameDebugger.ToggleDebugMode();  // 切换调试模式
 /// </remarks>
 public class GameDebugger : MonoBehaviour
 {

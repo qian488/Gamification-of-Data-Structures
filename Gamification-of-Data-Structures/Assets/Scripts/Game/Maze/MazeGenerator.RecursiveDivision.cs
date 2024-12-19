@@ -1,44 +1,79 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+/// <summary>
+/// 迷宫生成器递归分割部分
+/// 使用递归分割算法生成迷宫
+/// </summary>
+/// <remarks>
+/// 算法流程：
+/// 1. 从空房间开始
+/// 2. 递归地添加墙壁分割空间：
+///    - 随机选择分割方向
+///    - 在分割线上开通道
+///    - 递归处理子区域
+/// 3. 保证通路：
+///    - 检查是否有通道
+///    - 保护起点和终点区域
+/// 
+/// 特点：
+/// - 生成的迷宫较为规则
+/// - 容易形成大的开放空间
+/// - 墙壁分布均匀
+/// </remarks>
 public partial class MazeGenerator
 {
-    // 修改递归分割算法
     private void RecursiveDivision(int x1, int y1, int x2, int y2)
     {
-        // 检查边界条件
         if (x1 >= x2 - 1 || y1 >= y2 - 1) return;
 
-        // 计算当前区域的宽度和高度
         int areaWidth = x2 - x1;
         int areaHeight = y2 - y1;
 
-        // 如果区域太小，不再分割
         if (areaWidth < 4 || areaHeight < 4) return;
 
-        // 选择分割方向
-        bool horizontalDivision = areaHeight > areaWidth;
-        if (areaWidth == areaHeight)
-            horizontalDivision = random.Next(2) == 0;
-
-        if (horizontalDivision)
+        bool divideHorizontally = random.Next(2) == 0;
+        
+        if (areaWidth < areaHeight)
         {
-            // 选择水平分割线（必须是偶数位置）
-            int wallY = y1 + 2 + 2 * random.Next((areaHeight - 2) / 2);
+            divideHorizontally = true;  
+        }
+        else if (areaHeight < areaWidth)
+        {
+            divideHorizontally = false;  
+        }
 
+        if (divideHorizontally)
+        {
+            // 选择水平墙的位置（必须是偶数位置）
+            int wallY = y1 + 1 + 2 * random.Next((areaHeight - 1) / 2);
+            
             // 创建水平墙
+            bool hasPassage = false;  // 添加标记确保一定有通道
             for (int x = x1; x <= x2; x++)
             {
                 if (!IsNearStartOrEnd(x, wallY))
                 {
                     maze[x, wallY].IsWall = true;
                 }
+                else
+                {
+                    // 如果是起点或终点区域，确保这里是通道
+                    maze[x, wallY].IsWall = false;
+                    hasPassage = true;
+                }
             }
 
-            // 在墙上开一个通道（必须在奇数位置）
-            int passageX = x1 + 1 + 2 * random.Next((areaWidth + 1) / 2);
-            if (!IsNearStartOrEnd(passageX, wallY))
+            // 如果还没有通道，确保创建一个
+            if (!hasPassage)
             {
+                // 在墙上开一个通道（必须在奇数位置）
+                int passageX;
+                do
+                {
+                    passageX = x1 + 1 + 2 * random.Next((areaWidth + 1) / 2);
+                } while (IsNearStartOrEnd(passageX, wallY));  // 避免与起点终点区域重叠
+                
                 maze[passageX, wallY].IsWall = false;
             }
 
@@ -48,22 +83,33 @@ public partial class MazeGenerator
         }
         else
         {
-            // 选择垂直分割线（必须是偶数位置）
-            int wallX = x1 + 2 + 2 * random.Next((areaWidth - 2) / 2);
-
+            // 选择垂直墙的位置（必须是偶数位置）
+            int wallX = x1 + 1 + 2 * random.Next((areaWidth - 1) / 2);
+            
             // 创建垂直墙
+            bool hasPassage = false;
             for (int y = y1; y <= y2; y++)
             {
                 if (!IsNearStartOrEnd(wallX, y))
                 {
                     maze[wallX, y].IsWall = true;
                 }
+                else
+                {
+                    maze[wallX, y].IsWall = false;
+                    hasPassage = true;
+                }
             }
 
-            // 在墙上开一个通道（必须在奇数位置）
-            int passageY = y1 + 1 + 2 * random.Next((areaHeight + 1) / 2);
-            if (!IsNearStartOrEnd(wallX, passageY))
+            // 如果还没有通道，确保创建一个
+            if (!hasPassage)
             {
+                int passageY;
+                do
+                {
+                    passageY = y1 + 1 + 2 * random.Next((areaHeight + 1) / 2);
+                } while (IsNearStartOrEnd(wallX, passageY));
+                
                 maze[wallX, passageY].IsWall = false;
             }
 

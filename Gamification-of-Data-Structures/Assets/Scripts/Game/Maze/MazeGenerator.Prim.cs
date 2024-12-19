@@ -1,9 +1,25 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+/// <summary>
+/// 迷宫生成器Prim部分
+/// 使用Prim最小生成树算法生成迷宫
+/// </summary>
+/// <remarks>
+/// 算法流程：
+/// 1. 从起点开始扩展
+/// 2. 维护边界单元格列表
+/// 3. 随机选择边界单元格
+/// 4. 连接到已访问区域
+/// 5. 更新边界列表
+/// 
+/// 特点：
+/// - 生成的迷宫较为紧凑
+/// - 路径较短
+/// - 分支适中
+/// </remarks>
 public partial class MazeGenerator
 {
-    // Prim算法
     private void PrimGeneration()
     {
         List<Vector2Int> frontier = new List<Vector2Int>();

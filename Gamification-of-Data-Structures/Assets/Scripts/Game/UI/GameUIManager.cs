@@ -5,21 +5,28 @@ using UnityEngine.UI;
 
 /// <summary>
 /// 游戏UI管理器类
-/// 负责管理和协调所有游戏UI面板的显示和交互
+/// 负责管理和协调所有游戏UI面板
 /// </summary>
 /// <remarks>
 /// 主要功能：
-/// 1. 管理所有UI面板的生命周期
-/// 2. 协调不同UI面板之间的交互
-/// 3. 处理全局UI事件
-/// 4. 管理UI资源的加载和卸载
-/// 5. 提供UI状态的查询和控制接口
+/// 1. UI面板管理：
+///    - Init()：初始化所有UI面板
+///    - SetUITransparency()：控制面板透明度
+/// 2. 事件处理：
+///    - OnGameFinish：处理游戏完成事件
+///    - ShowExitConfirmPanel：显示退出确认
+/// 3. 可视化控制：
+///    - IncrementSteps：增加步数
+///    - ResetVisualizer：重置可视化器
+/// 
+/// 使用方式：
+/// - 通过GetInstance()获取单例
+/// - 使用Init()初始化UI系统
+/// - 通过提供的方法控制UI状态
 /// </remarks>
 public class GameUIManager : BaseManager<GameUIManager>
 {
-    /// <summary>迷宫游戏主UI面板</summary>
     private MazeGameUI mazeGameUI;
-    /// <summary>算法可视化UI面板</summary>
     private AlgorithmVisualizerUI algorithmVisualizer;
 
     /// <summary>
@@ -30,7 +37,6 @@ public class GameUIManager : BaseManager<GameUIManager>
     {
         Debug.Log("GameUIManager Init start");
         
-        // 使用UIManager显示迷宫游戏UI
         UIManager.GetInstance().ShowPanel<MazeGameUI>("MazeGameUI", E_UI_Layer.Top, (panel) =>
         {
             mazeGameUI = panel;
@@ -38,7 +44,6 @@ public class GameUIManager : BaseManager<GameUIManager>
             Debug.Log("MazeGameUI loaded successfully");
         });
 
-        // 使用UIManager显示算法可视化UI
         UIManager.GetInstance().ShowPanel<AlgorithmVisualizerUI>("AlgorithmVisualizerUI", E_UI_Layer.Mid, (panel) =>
         {
             algorithmVisualizer = panel;
@@ -46,7 +51,6 @@ public class GameUIManager : BaseManager<GameUIManager>
             Debug.Log("AlgorithmVisualizerUI loaded successfully");
         });
 
-        // 注册游戏完成事件
         EventCenter.GetInstance().AddEventListener("GameFinish", OnGameFinish);
 
     }
@@ -56,7 +60,6 @@ public class GameUIManager : BaseManager<GameUIManager>
     /// </summary>
     private void SetPanelTransparency(GameObject panel, float alpha)
     {
-        // 设置当前物体的Image组件透明度
         Image image = panel.GetComponent<Image>();
         if (image != null)
         {

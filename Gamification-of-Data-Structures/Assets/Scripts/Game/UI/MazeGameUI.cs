@@ -9,26 +9,34 @@ using UnityEngine.EventSystems;
 /// </summary>
 /// <remarks>
 /// 主要功能：
-/// 1. 动态创建和管理UI面板（按钮面板、完成面板、退出确认面板）
-/// 2. 处理UI事件响应（按钮点击、状态切换）
-/// 3. 提供UI创建的辅助方法（面板、按钮、文本）
-/// 4. 管理UI交互状态
-/// 5. 处理游戏完成和退出确认等特殊状态
+/// 1. 按钮功能：
+///    - 生成迷宫：重新生成迷宫
+///    - DFS/BFS：执行对应的寻路算法
+///    - 重置：重置当前迷宫状态
+/// 2. 面板管理：
+///    - ShowFinishPanel()：显示完成面板
+///    - ShowExitConfirmPanel()：显示退出确认面板
+/// 3. 事件处理：
+///    - OnMazeCompleted：处理迷宫完成事件
+///    - EnableUIInteraction/DisableUIInteraction：控制UI交互状态
+/// 
+/// 使用方式：
+/// - 通过UIManager创建和显示
+/// - 自动处理按钮点击和面板显示
+/// - 通过事件系统与其他系统交互
 /// </remarks>
 public class MazeGameUI : BasePanel
 {
-    /// <summary>游戏完成时显示的面板</summary>
     private GameObject finishPanel;
 
     private bool canInteract = false;
 
-    private GameObject exitConfirmPanel;  // 添加退出确认面板引用
+    private GameObject exitConfirmPanel; 
 
     protected override void Awake()
     {
         base.Awake();
-        
-        // 确保场景中有 EventSystem
+
         if (FindObjectOfType<EventSystem>() == null)
         {
             var eventSystem = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
@@ -37,17 +45,13 @@ public class MazeGameUI : BasePanel
         
         InitComponents();
 
-        // 注册UI交互事件
         EventCenter.GetInstance().AddEventListener("EnableUIInteraction", OnEnableUIInteraction);
         EventCenter.GetInstance().AddEventListener("DisableUIInteraction", OnDisableUIInteraction);
-
-        // 注册到达终点事件
         EventCenter.GetInstance().AddEventListener(MazeManager.EVENT_MAZE_COMPLETED, OnMazeCompleted);
     }
 
     private void OnDestroy()
     {
-        // 移除事件监听
         EventCenter.GetInstance().RemoveEventListener("EnableUIInteraction", OnEnableUIInteraction);
         EventCenter.GetInstance().RemoveEventListener("DisableUIInteraction", OnDisableUIInteraction);
         EventCenter.GetInstance().RemoveEventListener(MazeManager.EVENT_MAZE_COMPLETED, OnMazeCompleted);
@@ -86,12 +90,10 @@ public class MazeGameUI : BasePanel
 
     private void InitButtonPanel()
     {
-        // 创建按钮面板
         var buttonPanel = CreatePanel("ButtonPanel", new Vector2(0.02f, 0.02f), new Vector2(0.3f, 0.3f));
         buttonPanel.GetComponent<Image>().color = new Color(0, 0, 0, 0.5f);
         buttonPanel.GetComponent<Image>().raycastTarget = true;  // 确保面板可以接收射线检测
 
-        // 创建按钮
         CreateButton(buttonPanel, "GenerateBtn", "生成迷宫", new Vector2(0.1f, 0.75f), new Vector2(0.9f, 0.9f));
         CreateButton(buttonPanel, "DFSBtn", "深度优先搜索", new Vector2(0.1f, 0.5f), new Vector2(0.9f, 0.65f));
         CreateButton(buttonPanel, "BFSBtn", "广度优先搜索", new Vector2(0.1f, 0.25f), new Vector2(0.9f, 0.4f));
@@ -100,11 +102,9 @@ public class MazeGameUI : BasePanel
 
     private void InitFinishPanel()
     {
-        // 创建结束面板
         finishPanel = CreatePanel("FinishPanel", new Vector2(0.3f, 0.3f), new Vector2(0.7f, 0.7f));
         finishPanel.GetComponent<Image>().color = new Color(0, 0, 0, 0.8f);
         
-        // 添加点击事件
         var panelButton = finishPanel.AddComponent<Button>();
         panelButton.onClick.AddListener(HideFinishPanel);
         
@@ -113,8 +113,7 @@ public class MazeGameUI : BasePanel
         finishText.alignment = TextAnchor.MiddleCenter;
         finishText.color = Color.white;
         
-        // 添加提示文本
-        var hintText = CreateText(finishPanel, "HintText", "点击任意处关闭", new Vector2(0, 0.2f), new Vector2(1, 0.3f));
+        var hintText = CreateText(finishPanel, "HintText", "按R键重置，点击任意处关闭", new Vector2(0, 0.2f), new Vector2(1, 0.3f));
         hintText.fontSize = 24;
         hintText.alignment = TextAnchor.MiddleCenter;
         hintText.color = new Color(0.8f, 0.8f, 0.8f);
@@ -124,22 +123,18 @@ public class MazeGameUI : BasePanel
 
     private void InitExitConfirmPanel()
     {
-        // 创建退出确认面板
         exitConfirmPanel = CreatePanel("ExitConfirmPanel", new Vector2(0.3f, 0.3f), new Vector2(0.7f, 0.7f));
         exitConfirmPanel.GetComponent<Image>().color = new Color(0, 0, 0, 0.8f);
 
-        // 添加标题文本
         var titleText = CreateText(exitConfirmPanel, "TitleText", "确认退出？", new Vector2(0, 0.6f), new Vector2(1, 0.8f));
         titleText.fontSize = 40;
         titleText.alignment = TextAnchor.MiddleCenter;
         titleText.color = Color.white;
 
-        // 创建按钮容器
         var buttonContainer = CreatePanel("ButtonContainer", new Vector2(0.1f, 0.2f), new Vector2(0.9f, 0.4f));
         buttonContainer.transform.SetParent(exitConfirmPanel.transform, false);
         buttonContainer.GetComponent<Image>().color = new Color(0, 0, 0, 0);
 
-        // 创建确认和取消按钮，并将它们添加到面板的按钮列表中
         var confirmBtn = CreateButton(buttonContainer, "ExitConfirmBtn", "确认", new Vector2(0.1f, 0), new Vector2(0.45f, 1));
         var cancelBtn = CreateButton(buttonContainer, "ExitCancelBtn", "取消", new Vector2(0.55f, 0), new Vector2(0.9f, 1));
 
@@ -184,18 +179,16 @@ public class MazeGameUI : BasePanel
         if (exitConfirmPanel != null)
         {
             exitConfirmPanel.SetActive(false);
-            // 恢复游戏状态
-            Cursor.lockState = CursorLockMode.Locked;  // 添加这行，重新锁定鼠标
+            Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             
-            // 恢复玩家控制
             var player = GameObject.FindGameObjectWithTag("Player");
             if (player != null)
             {
                 var controller = player.GetComponent<PlayerController>();
                 if (controller != null)
                 {
-                    controller.EnableControl();  // 需要在 PlayerController 中添加这个方法
+                    controller.EnableControl(); 
                 }
             }
             
@@ -287,11 +280,9 @@ public class MazeGameUI : BasePanel
         image.color = new Color(0.2f, 0.2f, 0.2f, 1);
         image.raycastTarget = true;  // 确保图片组件可以接收射线检测
         
-        // 创建文本
         var textObj = CreateText(buttonObj, "Text", text, Vector2.zero, Vector2.one);
-        textObj.GetComponent<Text>().raycastTarget = false;  // 文本不需要射线检测
-        
-        // 添加点击事件监听
+        textObj.GetComponent<Text>().raycastTarget = false;  
+
         button.onClick.AddListener(() => {
             Debug.Log($"Button {name} clicked directly");  // 直接在点击事件中添加日志
             OnClick(name);

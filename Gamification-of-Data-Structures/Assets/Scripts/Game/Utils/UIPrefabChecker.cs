@@ -4,13 +4,22 @@ using UnityEngine.UI;
 /// <summary>
 /// UI预制体检查工具类
 /// 专门负责检查和配置UI相关的预制体
-/// 包括迷宫游戏UI和算法可视化UI的组件检查和设置
 /// </summary>
+/// <remarks>
+/// 主要功能：
+/// 1. CheckAndAddMazeGameUIComponents：配置迷宫游戏UI
+///    - 创建按钮面板、操作按钮和完成面板
+/// 2. CheckAndAddAlgorithmVisualizerUIComponents：配置算法可视化UI
+///    - 创建数据结构显示和步骤计数器
+/// 
+/// 使用方式：
+/// UIPrefabChecker.CheckAndAddMazeGameUIComponents(uiObj);
+/// UIPrefabChecker.CheckAndAddAlgorithmVisualizerUIComponents(uiObj);
+/// </remarks>
 public static class UIPrefabChecker
 {
     public static void CheckAndAddMazeGameUIComponents(GameObject uiObject)
     {
-        // 检查Canvas组件
         if (!uiObject.TryGetComponent(out Canvas canvas))
         {
             canvas = uiObject.AddComponent<Canvas>();
@@ -19,7 +28,6 @@ public static class UIPrefabChecker
         canvas.sortingOrder = 1;
         canvas.pixelPerfect = true;
 
-        // 检查CanvasScaler组件
         if (!uiObject.TryGetComponent(out CanvasScaler scaler))
         {
             scaler = uiObject.AddComponent<CanvasScaler>();
@@ -29,47 +37,39 @@ public static class UIPrefabChecker
         scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
         scaler.matchWidthOrHeight = 1;
 
-        // 检查GraphicRaycaster组件
         if (!uiObject.TryGetComponent(out GraphicRaycaster raycaster))
         {
             raycaster = uiObject.AddComponent<GraphicRaycaster>();
         }
 
-        // 确保RectTransform设置正确
         var rectTransform = uiObject.GetComponent<RectTransform>();
         rectTransform.anchorMin = Vector2.zero;
         rectTransform.anchorMax = Vector2.one;
         rectTransform.sizeDelta = Vector2.zero;
         rectTransform.anchoredPosition = Vector2.zero;
 
-        // 创建按钮面板
         var buttonPanel = CreateOrGetPanel(uiObject, "ButtonPanel", new Vector2(0.02f, 0.02f), new Vector2(0.3f, 0.3f));
         buttonPanel.GetComponent<Image>().color = new Color(0, 0, 0, 0.5f);
 
-        // 创建按钮
         CreateOrGetButton(buttonPanel, "GenerateBtn", "生成迷宫", new Vector2(0.1f, 0.75f), new Vector2(0.9f, 0.9f));
         CreateOrGetButton(buttonPanel, "DFSBtn", "深度优先搜索", new Vector2(0.1f, 0.5f), new Vector2(0.9f, 0.65f));
         CreateOrGetButton(buttonPanel, "BFSBtn", "广度优先搜索", new Vector2(0.1f, 0.25f), new Vector2(0.9f, 0.4f));
         CreateOrGetButton(buttonPanel, "ResetBtn", "重置", new Vector2(0.1f, 0.05f), new Vector2(0.9f, 0.2f));
 
-        // 创建FinishPanel
         var finishPanel = uiObject.transform.Find("FinishPanel")?.gameObject;
         if (finishPanel == null)
         {
             finishPanel = new GameObject("FinishPanel");
             finishPanel.transform.SetParent(uiObject.transform, false);
             
-            // 添加RectTransform
             var finishPanelRect = finishPanel.AddComponent<RectTransform>();
             finishPanelRect.anchorMin = new Vector2(0.3f, 0.3f);
             finishPanelRect.anchorMax = new Vector2(0.7f, 0.7f);
             finishPanelRect.sizeDelta = Vector2.zero;
             
-            // 添加Image组件
             var panelImage = finishPanel.AddComponent<Image>();
             panelImage.color = new Color(0, 0, 0, 0.5f);
             
-            // 创建文本
             var finishText = new GameObject("FinishText");
             finishText.transform.SetParent(finishPanel.transform, false);
             
@@ -89,7 +89,6 @@ public static class UIPrefabChecker
 
     public static void CheckAndAddAlgorithmVisualizerUIComponents(GameObject uiObject)
     {
-        // 检查Canvas组件
         if (!uiObject.TryGetComponent(out Canvas canvas))
         {
             canvas = uiObject.AddComponent<Canvas>();
@@ -98,7 +97,6 @@ public static class UIPrefabChecker
         canvas.sortingOrder = 2;
         canvas.pixelPerfect = true;
 
-        // 检查CanvasScaler组件
         if (!uiObject.TryGetComponent(out CanvasScaler scaler))
         {
             scaler = uiObject.AddComponent<CanvasScaler>();
@@ -108,24 +106,20 @@ public static class UIPrefabChecker
         scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
         scaler.matchWidthOrHeight = 1;
 
-        // 检查GraphicRaycaster组件
         if (!uiObject.TryGetComponent(out GraphicRaycaster raycaster))
         {
             raycaster = uiObject.AddComponent<GraphicRaycaster>();
         }
 
-        // 确保RectTransform设置正确
         var rectTransform = uiObject.GetComponent<RectTransform>();
         rectTransform.anchorMin = Vector2.zero;
         rectTransform.anchorMax = Vector2.one;
         rectTransform.sizeDelta = Vector2.zero;
         rectTransform.anchoredPosition = Vector2.zero;
 
-        // 创建StackQueueText
         var stackQueueText = CreateOrGetUIText(uiObject, "StackQueueText", "数据结构内容：", new Vector2(0.05f, 0.8f), new Vector2(0.95f, 0.95f));
         stackQueueText.color = Color.white;
 
-        // 创建StepsText
         var stepsText = CreateOrGetUIText(uiObject, "StepsText", "执行步骤：0", new Vector2(0.05f, 0.7f), new Vector2(0.95f, 0.75f));
         stepsText.color = Color.white;
     }
