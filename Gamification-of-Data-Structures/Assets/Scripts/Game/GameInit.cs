@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Unity.VisualScripting;
 
 /// <summary>
 /// 游戏初始化类
@@ -25,6 +26,9 @@ public class GameInit : MonoBehaviour
     /// </summary>
     void Start()
     {
+        MusicManager.GetInstance().PlayBGM("ForRiver");
+        MusicManager.GetInstance().ChangeBGMValue(0.5f);
+
         RenderSettings.ambientLight = new Color(1f, 1f, 1f);  
         RenderSettings.ambientIntensity = 1.5f; 
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;

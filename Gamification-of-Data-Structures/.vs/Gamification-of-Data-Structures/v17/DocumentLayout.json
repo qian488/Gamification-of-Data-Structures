@@ -3,11 +3,15 @@
   "WorkspaceRootPath": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\assets\\scripts\\game\\gameinit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\game\\gameinit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|d:\\projects\\vscodeprojects\\datastructfinal\\gamification-of-data-structures\\assets\\scripts\\game\\maze\\mazemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\game\\maze\\mazemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|d:\\projects\\vscodeprojects\\datastructfinal\\gamification-of-data-structures\\assets\\scripts\\game\\algorithm\\pathfinder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\assets\\scripts\\game\\algorithm\\pathfinder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\game\\algorithm\\pathfinder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -39,10 +43,6 @@
       "RelativeMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\game\\ui\\mazegameui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|d:\\projects\\vscodeprojects\\datastructfinal\\gamification-of-data-structures\\assets\\scripts\\game\\gameinit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\game\\gameinit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\assets\\scripts\\game\\player\\playercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8E33D1C1-E394-2C70-59DB-3D85E92698BF}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\game\\player\\playercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -54,11 +54,15 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 11,
           "Children": [
             {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "GameUIManager.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\UI\\GameUIManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\UI\\GameUIManager.cs",
@@ -66,16 +70,11 @@
               "RelativeToolTip": "Assets\\Scripts\\Game\\UI\\GameUIManager.cs",
               "ViewState": "AgIAAIUAAAAAAAAAAAAxwI4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-10T07:04:05.612Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+              "WhenOpened": "2024-12-10T07:04:05.612Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "PathFinder.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Algorithm\\PathFinder.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Algorithm\\PathFinder.cs",
@@ -83,12 +82,11 @@
               "RelativeToolTip": "Assets\\Scripts\\Game\\Algorithm\\PathFinder.cs",
               "ViewState": "AgIAABQAAAAAAAAAAAAowB8AAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-19T02:35:46.81Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-19T02:35:46.81Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "MazeGenerator.RecursiveDivision.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Maze\\MazeGenerator.RecursiveDivision.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Maze\\MazeGenerator.RecursiveDivision.cs",
@@ -96,12 +94,11 @@
               "RelativeToolTip": "Assets\\Scripts\\Game\\Maze\\MazeGenerator.RecursiveDivision.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAIoAAAA3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-16T12:59:26.104Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-16T12:59:26.104Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "MazeGenerator.DFS.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Maze\\MazeGenerator.DFS.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Maze\\MazeGenerator.DFS.cs",
@@ -109,12 +106,11 @@
               "RelativeToolTip": "Assets\\Scripts\\Game\\Maze\\MazeGenerator.DFS.cs",
               "ViewState": "AgIAABcAAAAAAAAAAAAkwDAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-16T12:37:02.318Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-16T12:37:02.318Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "MazeGenerator.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Maze\\MazeGenerator.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Maze\\MazeGenerator.cs",
@@ -122,8 +118,7 @@
               "RelativeToolTip": "Assets\\Scripts\\Game\\Maze\\MazeGenerator.cs",
               "ViewState": "AgIAAHgAAAAAAAAAAAAzwAcAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-16T09:29:56.153Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-16T09:29:56.153Z"
             },
             {
               "$type": "Document",
@@ -135,12 +130,11 @@
               "RelativeToolTip": "Assets\\Scripts\\Game\\Player\\PlayerController.cs",
               "ViewState": "AgIAADIAAAAAAAAAAAAUwEEAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-11T05:16:02.183Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-11T05:16:02.183Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "BFSPathFinder.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Algorithm\\BFSPathFinder.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Algorithm\\BFSPathFinder.cs",
@@ -148,25 +142,24 @@
               "RelativeToolTip": "Assets\\Scripts\\Game\\Algorithm\\BFSPathFinder.cs",
               "ViewState": "AgIAABEAAAAAAAAAAAAxwB0AAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-11T00:47:49.168Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-11T00:47:49.168Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "MazeManager.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Maze\\MazeManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Maze\\MazeManager.cs",
               "ToolTip": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Maze\\MazeManager.cs",
               "RelativeToolTip": "Assets\\Scripts\\Game\\Maze\\MazeManager.cs",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAowBoAAAAlAAAAAAAAAA==",
+              "ViewState": "AgIAAIYAAAAAAAAAAAAAwBoAAAAlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-19T00:12:29.905Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "PlayerManager.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\Player\\PlayerManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\Player\\PlayerManager.cs",
@@ -174,12 +167,11 @@
               "RelativeToolTip": "Assets\\Scripts\\Game\\Player\\PlayerManager.cs",
               "ViewState": "AgIAAOEAAAAAAAAAAAAAAFgAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-10T07:12:41.835Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-10T07:12:41.835Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "MazeGameUI.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\UI\\MazeGameUI.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\UI\\MazeGameUI.cs",
@@ -187,18 +179,17 @@
               "RelativeToolTip": "Assets\\Scripts\\Game\\UI\\MazeGameUI.cs",
               "ViewState": "AgIAAB4BAAAAAAAAAAAkwBwAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-10T07:05:32.486Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-10T07:05:32.486Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 0,
               "Title": "GameInit.cs",
               "DocumentMoniker": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\GameInit.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Game\\GameInit.cs",
               "ToolTip": "D:\\Projects\\VscodeProjects\\DatastructFinal\\Gamification-of-Data-Structures\\Assets\\Scripts\\Game\\GameInit.cs",
               "RelativeToolTip": "Assets\\Scripts\\Game\\GameInit.cs",
-              "ViewState": "AgIAAC8AAAAAAAAAAAAuwCwAAAAxAAAAAAAAAA==",
+              "ViewState": "AgIAABAAAAAAAAAAAAAAAB0AAAA1AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-10T07:03:12.284Z",
               "EditorCaption": ""
